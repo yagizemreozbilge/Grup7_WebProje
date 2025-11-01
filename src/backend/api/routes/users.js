@@ -112,10 +112,35 @@ return res.status(errorResponse.code).json(errorResponse);
 });
 
 /* GET users listing. */
-router.get("/", async (req, res) => {
+router.get("/", auth.checkRoles("users_view"),async (req, res) => {
   try {
     let users = await Users.find({});
     res.json(Response.successResponse(users))
+  } catch(err) {
+     let errorResponse = Response.errorResponse(err);
+return res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+router.post("/add", auth.checkRoles("users_add"),async(req,res) => {
+  let body = req.body;
+   try {
+    if(!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!","email must be fiiled");
+     if(!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!","password must be fiiled");
+
+     const hashedPassword = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8));
+
+     await Users.create({
+      email: body.email,
+      password:hashedPassword,
+      is_active: true,
+      first_name: body.first_name,
+      last_name: body.last_name,
+      phone_number: body.phone_number
+    });
+
+     return res.status(201).json({ message: "User created successfully" });
+
   } catch(err) {
      let errorResponse = Response.errorResponse(err);
 return res.status(errorResponse.code).json(errorResponse);
@@ -129,7 +154,7 @@ return res.status(errorResponse.code).json(errorResponse);
 
 
 
-router.post("/update", async (req, res) => {
+router.post("/update", auth.checkRoles("users_update"), async (req, res) => {
   try {
     let body = req.body;
     let updates = {};
@@ -190,7 +215,7 @@ router.post("/update", async (req, res) => {
 
 
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth.checkRoles("users_delete"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
@@ -208,30 +233,6 @@ router.post("/delete", async (req, res) => {
 
 
 
-router.post("/add", async(req,res) => {
-  let body = req.body;
-   try {
-    if(!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!","email must be fiiled");
-     if(!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!","password must be fiiled");
-
-     const hashedPassword = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8));
-
-     await Users.create({
-      email: body.email,
-      password:hashedPassword,
-      is_active: true,
-      first_name: body.first_name,
-      last_name: body.last_name,
-      phone_number: body.phone_number
-    });
-
-     return res.status(201).json({ message: "User created successfully" });
-
-  } catch(err) {
-     let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
-  }
-});
 
 
 

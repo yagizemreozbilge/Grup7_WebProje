@@ -4,6 +4,8 @@ const Users = require("../db/models/Users");
 const UserRoles = require("../db/models/UserRoles");
 const RolePrivileges = require("../db/models/RolePrivileges");
 const config = require("../config");
+const Response = require("./Response");
+const {HTTP_CODES} = require("../config/Enum");
 
 module.exports = function() {
     let strategy = new Strategy({
@@ -20,6 +22,8 @@ module.exports = function() {
             let userRoles = await UserRoles.find({user_id: payload_id});
 
             let rolePrivileges = await RolePrivileges.find({ role_id: { $in: userRoles.map(ur => ur.role_id) } });
+
+            let privileges = rolePrivileges.map(rp => privs.privileges.find(x => x.key == rp.permission))
 
             done(null, {
                 id: user._id,
@@ -46,6 +50,23 @@ module.exports = function() {
 
         authenticate: function() {
             return passport.authenticate("jwt", {session: false});
-        }
+        },
+
+        checkRoles: (...expectedRoles) => {
+            return (req, res, next) => {
+
+                let i = 0;
+                let privileges = req.user.roles.filter(x => x).map(x => x.key);
+
+                while (i < expectedRoles.length && !privileges.includes(expectedRoles[i])) i++;
+
+                if (i >= expectedRoles.length) {
+                    let response = Response.errorResponse(new CustomError(HTTP_CODES.UNAUTHORIZED, "Need Permission", "Need Permission"));
+                    return res.status(response.code).json(response);
+                }
+
+                return next(); // Authorized
     }
+}
+}
 }
