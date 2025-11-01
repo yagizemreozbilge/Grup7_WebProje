@@ -3,8 +3,12 @@ const Response = require("../lib/Response");
 const moment = require("moment");
 const AuditLogs = require("../db/models/AuditLogs");
 const router = express.Router();
+const auth = require("../lib/auth")();
 
 
+router.all("*",auth.authenticate(), (req,rest,next) => {
+    next();
+})
 
 router.post("/", async(req,res) =>{
     try {

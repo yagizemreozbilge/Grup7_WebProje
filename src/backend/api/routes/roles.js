@@ -10,6 +10,13 @@ const Enum = require("../config/Enum")
 const { HTTP_CODES } = require('../config/Enum');
 const role_privileges = require("../config/role_privileges");
 
+const auth = require("../lib/auth")();
+
+
+router.all("*",auth.authenticate(), (req,rest,next) => {
+    next();
+})
+
 router.get("/", async (req, res) => {
   try {
     let roles = await Roles.find({});
