@@ -1,0 +1,106 @@
+var express = require('express');
+var router = express.Router();
+const Fields = require("../db/models/Fields");
+const Response = require("../lib/Response");
+const CustomError = require("../lib/Error")
+const Enum = require("../config/Enum");
+const AuditLogs = require("../lib/AuditLogs");
+
+
+/* GET Kategori Listeleme. */
+router.get('/', async(req, res) => {
+
+    try {
+        let fields = await Fields.find({});
+
+        res.json(Response.successResponse(fields));
+    } catch(err) {
+            let errorResponse = Response.errorResponse(err);
+return res.status(errorResponse.code).json(errorResponse);
+
+    }
+  
+});
+
+
+router.post("/add", async(req, res) => {
+     let body = req.body;
+    try {
+        if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
+        let fields = new Fields({
+            tenant_id:body.tenant_id,
+            name:body.name,
+            photos:body.photos,
+            price_per_hour:body.price_per_hour,
+            features:body.features,
+            latitude:body.latitude,
+            longitude:body.longitude,
+            address:body.address,
+            is_active:true,
+            created_by: req.user?.id
+        });
+
+        AuditLogs.info(req.user?.email, "Fields", "Add", field);
+        await field.save();
+
+        res.json(Response.successResponse({success: true}));
+    } catch(err) {
+          res.json(Response.errorResponse(err));
+          
+    }
+     
+});
+
+
+
+
+router.post("/update", async (req, res) => {
+  let body = req.body;
+  try {
+    if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
+     if (!tenant._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+
+    let updates = {};
+
+    if (body.name) updates.name = body.name;
+    if (body.photos) updates.photos = body.photos;
+    if (body.price_per_hour) updates.price_per_hour = body.price_per_hour;
+    if (body.features) updates.features = body.features;
+    if (body.latitude) updates.latitude = body.latitude;
+    if (body.longitude) updates.longitude = body.longitude;
+    if (body.address) updates.address = body.address;
+    if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
+
+    await Fields.updateOne({ _id: body._id,tenant_id: body.tenant_id }, updates);
+
+    AuditLogs.info(req.user?.email, "Fields", "Update", { _id: body._id, ...updates });
+
+    res.json(Response.successResponse({ success: true }));
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+
+
+router.post("/delete", async (req, res) => {
+  let body = req.body;
+  try {
+    if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
+    if (!tenant._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+
+    await Fields.deleteOne({ _id: body._id }); 
+
+    AuditLogs.info(req.user?.email, "Fields", "Delete", { _id: body._id,tenant_id: body.tenant_id });
+
+    res.json(Response.successResponse({ success: true }));
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+
+
+module.exports = router;
