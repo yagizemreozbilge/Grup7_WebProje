@@ -29,6 +29,8 @@ router.post("/add", async(req, res) => {
         if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
         let tenants = new Tenants({
             name:body.name,
+            owner_user_id:body.owner_user_id,
+            billing_info:body.billing_info,
             is_active:true,
             created_by: req.user?.id
         });
@@ -51,13 +53,15 @@ router.post("/update", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
-
+    if (!owner_user_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "owner_user_id field must be filled");
     let updates = {};
 
     if (body.name) updates.name = body.name;
+    if (body.owner_user_id) updates.owner_user_id = body.owner_user_id;
+    if (body.billing_info) updates.billing_info = body.billing_info;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    await Tenants.updateOne({ _id: body._id }, updates);
+    await Tenants.updateOne({ _id: body._id, owner_user_id:body.owner_user_id }, updates);
 
     AuditLogs.info(req.user?.email, "Tenants", "Update", { _id: body._id, ...updates });
 
@@ -74,8 +78,8 @@ router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
-
-    await Tenants.deleteOne({ _id: body._id }); 
+    if (!owner_user_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "owner_user_id field must be filled");
+    await Tenants.deleteOne({ _id: body._id, owner_user_id:body.owner_user_id }); 
 
     AuditLogs.info(req.user?.email, "Tenants", "Delete", { _id: body._id });
 
