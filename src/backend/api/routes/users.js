@@ -12,9 +12,9 @@ const config = require("../config")
 var router = express.Router();
 const auth = require("../lib/auth")();
 
-router.all("*",auth.authenticate(), (req,rest,next) => {
+/*router.all("*",auth.authenticate(), (req,rest,next) => {
     next();
-});
+});*/
 
 router.post("/register", async(req,res) => {
   let body = req.body;

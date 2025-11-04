@@ -6,7 +6,7 @@ const router = express.Router();
 const auth = require("../lib/auth")();
 
 
-router.all("*",auth.authenticate(), (req,rest,next) => {
+router.all("*",auth.authenticate(), (req,res,next) => {
     next();
 })
 

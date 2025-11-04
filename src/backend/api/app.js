@@ -27,7 +27,10 @@ app.use((req,res,next) => {
   next();
 });
 
-app.use('/api', require('./routes/index'));
+app.use('/', require('./routes/index'));
+
+
+
 
 
 

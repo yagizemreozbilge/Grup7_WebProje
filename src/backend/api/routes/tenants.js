@@ -5,6 +5,7 @@ const Response = require("../lib/Response");
 const CustomError = require("../lib/Error")
 const Enum = require("../config/Enum");
 const AuditLogs = require("../lib/AuditLogs");
+const { HTTP_CODES } = require('../config/Enum');
 
 
 /* GET Kategori Listeleme. */
