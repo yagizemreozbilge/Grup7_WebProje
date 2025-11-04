@@ -28,6 +28,6 @@ const schema = mongoose.Schema({
 
 
 class Tenants extends mongoose.Model {}
-schema.loadClass(Tenants);
+
 
 module.exports = mongoose.model("tenants", schema);

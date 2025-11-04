@@ -9,6 +9,7 @@ var logger = require('morgan');
 
 
 
+
 var app = express();
 console.log("ENV", process.env);
 
@@ -28,6 +29,16 @@ app.use((req,res,next) => {
 });
 
 app.use('/', require('./routes/index'));
+app.use('/users', require('./routes/users'));
+app.use('/roles', require('./routes/roles'));
+app.use('/availabilities', require('./routes/availabilities'));
+app.use('/reservations', require('./routes/reservations'));
+app.use('/fields', require('./routes/fields'));
+app.use('/tenants', require('./routes/tenants'));
+app.use('/auditlogs', require('./routes/auditlogs'));
+
+
+
 
 
 

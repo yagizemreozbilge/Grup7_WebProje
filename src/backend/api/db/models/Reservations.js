@@ -54,6 +54,6 @@ const schema = mongoose.Schema({
 
 class Reservations extends mongoose.Model {}
 
-schema.loadClass(Reservations);
+
 
 module.exports = mongoose.model("reservations", schema);

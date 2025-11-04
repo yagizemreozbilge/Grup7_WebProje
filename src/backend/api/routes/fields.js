@@ -4,7 +4,7 @@ const Fields = require("../db/models/Fields");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error")
 const Enum = require("../config/Enum");
-const AuditLogs = require("../lib/AuditLogs");
+const AuditLogs = require("../db/models/AuditLogs");
 
 
 /* GET Kategori Listeleme. */

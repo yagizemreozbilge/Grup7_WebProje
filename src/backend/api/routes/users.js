@@ -1,7 +1,7 @@
 var express = require('express');
 const bcrypt = require("bcrypt"); 
 const validator = require("validator");
-const Users = require("../db/models/Users");
+const Users = require('../db/models/Users');
 const UserRoles = require('../db/models/UserRoles');
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
@@ -10,7 +10,7 @@ const { HTTP_CODES } = require('../config/Enum');
 const Roles = require('../db/models/Roles');
 const config = require("../config")
 var router = express.Router();
-const auth = require("../lib/auth")();
+const auth = require('../lib/logger/auth')();
 
 /*router.all("*",auth.authenticate(), (req,rest,next) => {
     next();

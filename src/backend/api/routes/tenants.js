@@ -4,7 +4,7 @@ const Tenants = require("../db/models/Tenants");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error")
 const Enum = require("../config/Enum");
-const AuditLogs = require("../lib/AuditLogs");
+const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require('../config/Enum');
 
 

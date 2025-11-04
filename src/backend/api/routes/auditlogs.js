@@ -3,7 +3,7 @@ const Response = require("../lib/Response");
 const moment = require("moment");
 const AuditLogs = require("../db/models/AuditLogs");
 const router = express.Router();
-const auth = require("../lib/auth")();
+const auth = require('../lib/logger/auth')();
 
 
 router.all("*",auth.authenticate(), (req,res,next) => {

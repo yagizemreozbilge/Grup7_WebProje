@@ -10,7 +10,7 @@ const Enum = require("../config/Enum")
 const { HTTP_CODES } = require('../config/Enum');
 const role_privileges = require("../config/role_privileges");
 
-const auth = require("../lib/auth")();
+const auth = require('../lib/logger/auth')();
 
 
 router.all("*",auth.authenticate(), (req,rest,next) => {

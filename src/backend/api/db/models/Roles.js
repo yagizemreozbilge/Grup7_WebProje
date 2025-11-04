@@ -1,6 +1,7 @@
 // api/db/models/Roles.js
 const mongoose = require("mongoose");
-const RolePrivileges = require("./RolePrivileges");
+const RolePrivileges = require('./RolePrivileges');
+
 
 const schema = mongoose.Schema({
   role_name: {

@@ -57,7 +57,7 @@ const schema = mongoose.Schema({
 -
 class Availabilities extends mongoose.Model {}
 
-schema.loadClass(Availabilities);
+
 
 
 

@@ -54,6 +54,6 @@ const schema = mongoose.Schema({
 
 
 class Fields extends mongoose.Model {}
-schema.loadClass(Fields);
+
 
 module.exports = mongoose.model("fields", schema);
