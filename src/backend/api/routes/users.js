@@ -1,20 +1,34 @@
 var express = require('express');
-const bcrypt = require("bcrypt"); 
+var router = express.Router();
+
+const bcrypt = require("bcrypt");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+
+
 const Users = require('../db/models/Users');
 const UserRoles = require('../db/models/UserRoles');
+const Roles = require('../db/models/Roles');
+
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
-const Enum = require("../config/Enum")
+const Enum = require("../config/Enum");
 const { HTTP_CODES } = require('../config/Enum');
-const Roles = require('../db/models/Roles');
-const config = require("../config")
-var router = express.Router();
+const config = require("../config");
 const auth = require('../lib/logger/auth')();
 
-/*router.all("*",auth.authenticate(), (req,rest,next) => {
-    next();
-});*/
+
+
+
+
+
+router.use((req, res, next) => {
+    if (req.path === '/register' || req.path === '/auth') {
+        return next(); 
+    }
+    
+    auth.authenticate()(req, res, next);
+});
 
 router.post("/register", async(req,res) => {
   let body = req.body;
@@ -109,6 +123,10 @@ router.post("/auth", async(req,res) => {
    let errorResponse = Response.errorResponse(err);
 return res.status(errorResponse.code).json(errorResponse);
 }
+});
+
+router.all("*",auth.authenticate(), (req,rest,next) => {
+    next();
 });
 
 /* GET users listing. */

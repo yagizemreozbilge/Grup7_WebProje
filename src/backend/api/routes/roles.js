@@ -13,11 +13,11 @@ const role_privileges = require("../config/role_privileges");
 const auth = require('../lib/logger/auth')();
 
 
-router.all("*",auth.authenticate(), (req,rest,next) => {
+/*router.all("*",auth.authenticate(), (req,rest,next) => {
     next();
-})
+})*/
 
-router.get("/", auth.checkRoles("roles_view"), async (req, res) => {
+router.get("/", /*auth.checkRoles("roles_view")*/ async (req, res) => {
   try {
     let roles = await Roles.find({});
     res.json(Response.successResponse(roles));
@@ -28,7 +28,7 @@ return res.status(errorResponse.code).json(errorResponse);
 });
 
 
-router.post("/add", auth.checkRoles("roles_add"), async(req,res) => {
+router.post("/add", /*auth.checkRoles("roles_add")*/ async(req,res) => {
   let body = req.body;
    try {
     if(!body.role_name) throw CustomError(Enum,HTTP_CODES.BAD_REQUEST, "Validation Error!", "role_name field must be fiiled");

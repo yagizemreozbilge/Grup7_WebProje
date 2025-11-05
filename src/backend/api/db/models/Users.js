@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const {PASS_LENGTH} = require("../../config/Enum");
+const {PASS_LENGTH,HTTP_CODES} = require("../../config/Enum");
+const CustomError = require("../../lib/Error");
 const  bcrypt = require("bcrypt");
 
 const schema = mongoose.Schema({
@@ -20,6 +21,8 @@ const schema = mongoose.Schema({
     first_name: String,
     last_name: String,
     phone_number: String,
+
+    roles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Roles", required: true }]
 }, {
     versionKey: false,
     timestamps: {
@@ -37,7 +40,7 @@ class Users extends mongoose.Model {
     }
 
     validateFieldsBeforeAuth(email, password) {
-        if (typeof password !== "string" || password.length < PASS_LENGTH || is.not.email(email))
+        if (typeof password !== "string" || password.length < PASS_LENGTH || validator.not.email(email))
             throw new CustomError(HTTP_CODES.UNAUTHORIZED, "Validation Error", "email or password wrong");
 
         return null;
@@ -47,5 +50,5 @@ class Users extends mongoose.Model {
 
 
 
-schema.loadClass(Users);
+
 module.exports = mongoose.model("users", schema);
