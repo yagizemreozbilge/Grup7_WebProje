@@ -72,7 +72,7 @@ router.post("/register", async(req,res) => {
     for (let i = 0; i < roles.length; i++) {
       await UserRoles.create({
         role_id: roles[i]._id,
-        user_id: user._id
+        user_id: createdUser._id
       })
     }
 
@@ -105,11 +105,11 @@ router.post("/auth", async(req,res) => {
       if(!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
 
       let payload = {
-        id:user_id,
-        exp: parseInt(Date.now() / 1000) * config.JWT.EXPIRE_TIME
+        id: user._id,
+        exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
       }
 
-      let token = jwt.encode(payload, config.JWT.SECRET);
+      let token = jwt.sign(payload, config.JWT.SECRET);
 
       let userData = {
         _id: user._id,

@@ -8,6 +8,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // Bootstrap'in genel kapsayıcı bileşeni
 import { Container } from 'react-bootstrap';
 
+// Auth Provider
+import { AuthProvider } from './context/AuthContext';
+
+// Protected Route
+import ProtectedRoute from './components/ProtectedRoute';
+
 // 1. KENDİ BİLEŞENLERİMİZİ "İMPORT" EDİYORUZ
 // Menümüz:
 import NavbarMenu from './components/NavbarMenu';
@@ -24,40 +30,58 @@ import AdminPanel from './pages/AdminPanel';
 // 2. ANA UYGULAMA FONKSİYONU
 function App() {
   return (
-    // BrowserRouter, tüm uygulamayı sarar ve "sayfa geçişi" özelliklerini aktif eder.
-    <BrowserRouter>
+    // AuthProvider tüm uygulamayı sarar ve authentication state'ini yönetir
+    <AuthProvider>
+      {/* BrowserRouter, tüm uygulamayı sarar ve "sayfa geçişi" özelliklerini aktif eder. */}
+      <BrowserRouter>
 
-      {/* NavbarMenu'yü buraya koyduk. "Routes"un DIŞINDA. */}
-      {/* Bu sayede sayfa değişse bile Navbar hep sabit kalır. */}
-      <NavbarMenu />
+        {/* NavbarMenu'yü buraya koyduk. "Routes"un DIŞINDA. */}
+        {/* Bu sayede sayfa değişse bile Navbar hep sabit kalır. */}
+        <NavbarMenu />
 
-      <main className="py-3">
-        <Container>
-          {/* Routes, hangi URL'de hangi sayfanın yükleneceğine karar veren "harita"dır. */}
-          <Routes>
+        <main className="py-3">
+          <Container>
+            {/* Routes, hangi URL'de hangi sayfanın yükleneceğine karar veren "harita"dır. */}
+            <Routes>
 
-            {/* Route, haritadaki tek bir yoldur.
-              path="/" (ana yol) -> element={<AnaSayfa />} (AnaSayfa bileşenini göster)
-            */}
-            <Route path="/" element={<AnaSayfa />} />
-            <Route path="/giris-yap" element={<GirisYap />} />
-            <Route path="/kayit-ol" element={<KayitOl />} />
-            <Route path="/sahalar" element={<SahaListeleme />} />
+              {/* Route, haritadaki tek bir yoldur.
+                path="/" (ana yol) -> element={<AnaSayfa />} (AnaSayfa bileşenini göster)
+              */}
+              <Route path="/" element={<AnaSayfa />} />
+              <Route path="/giris-yap" element={<GirisYap />} />
+              <Route path="/kayit-ol" element={<KayitOl />} />
+              <Route path="/sahalar" element={<SahaListeleme />} />
 
-            {/* Bu özel bir yoldur. :id demek "değişken" demektir. */}
-            {/* /saha/1 veya /saha/abc gibi linklere tıklandığında SahaDetay sayfasını açar. */}
-            <Route path="/saha/:id" element={<SahaDetay />} />
+              {/* Bu özel bir yoldur. :id demek "değişken" demektir. */}
+              {/* /saha/1 veya /saha/abc gibi linklere tıklandığında SahaDetay sayfasını açar. */}
+              <Route path="/saha/:id" element={<SahaDetay />} />
 
-            <Route path="/panel" element={<KullaniciPanel />} />
-            <Route path="/admin" element={<AdminPanel />} />
+              {/* Protected Routes - Sadece giriş yapmış kullanıcılar erişebilir */}
+              <Route 
+                path="/panel" 
+                element={
+                  <ProtectedRoute>
+                    <KullaniciPanel />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <AdminPanel />
+                  </ProtectedRoute>
+                } 
+              />
 
-          </Routes>
-        </Container>
-      </main>
+            </Routes>
+          </Container>
+        </main>
 
-      {/* Buraya da ileride bir <Footer /> bileşeni ekleyebiliriz. */}
+        {/* Buraya da ileride bir <Footer /> bileşeni ekleyebiliriz. */}
 
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
