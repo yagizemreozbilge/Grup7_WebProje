@@ -1,3 +1,4 @@
+//users.js
 var express = require('express');
 var router = express.Router();
 
@@ -17,6 +18,8 @@ const { HTTP_CODES } = require('../config/Enum');
 const config = require("../config");
 const auth = require('../lib/logger/auth')();
 
+const DEFAULT_PLAYER_ROLE_ID = "690a455bd8be2c698c44152e";
+
 
 
 
@@ -34,97 +37,103 @@ router.post("/register", async(req,res) => {
   let body = req.body;
    try {
 
-    if (!body.email) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "email field must be filled");
+    if (!body.email) 
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "email field must be filled");
 
-    if (!validator.isEmail(body.email)) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "email field must be an email format");
+    if (!validator.isEmail(body.email)) 
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "email field must be an email format");
 
-    if (!body.password) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "password field must be filled");
+    if (!body.password) 
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "password field must be filled");
 
-    if (body.password.length < Enum.PASS_LENGTH) {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "password length must be greater than " + Enum.PASS_LENGTH);
+    if (body.password.length < Enum.PASS_LENGTH.MIN) {
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "password length must be greater than " + Enum.PASS_LENGTH.MIN);
     }
 
-   if (!body.roles || !Array.isArray(body.roles) || body.roles.length == 0) {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "roles field must be filled");
+    // DEFAULT ROLE: PLAYER
+    if (!body.roles || !Array.isArray(body.roles) || body.roles.length === 0) {
+      body.roles = ["690a455bd8be2c698c44152e"]; 
     }
 
     let roles = await Roles.find({ _id: { $in: body.roles } });
 
-    if (roles.length == 0) {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "roles field must be filled");
+    if (roles.length === 0) {
+      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "roles field must be valid");
     }
 
+    const hashedPassword = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8));
 
-    
-    
-
-    const hashedPassword = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8), null);
-    
     let createdUser = await Users.create({
       email: body.email,
-      password:hashedPassword,
+      password: hashedPassword,
       is_active: true,
       first_name: body.first_name,
       last_name: body.last_name,
-      phone_number: body.phone_number,
-      roles: body.roles
+      phone_number: body.phone_number
     });
 
+    
     for (let i = 0; i < roles.length; i++) {
       await UserRoles.create({
         role_id: roles[i]._id,
         user_id: createdUser._id
-      })
+      });
     }
 
-    
-    let role = await Roles.create({
-      role_name:Enum.SUPER_ADMIN,
-      is_active:true,
-      created_by:createdUser._id
-    })
-
-    await UserRoles.create({
-      role_id: role._id,
-      user_id: createdUser._id
-    });
     res.json(Response.successResponse({ success: true }));
+
   } catch(err) {
      let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
+     return res.status(errorResponse.code).json(errorResponse);
   }
 });
 
-router.post("/auth", async(req,res) => {
+
+router.post("/auth", async (req, res) => {
   try {
-    let {email,password} = req.body;
-      Users.validateFieldsBeforeAuth(email,password);
-      let user = await Users.findOne({email});
+    let { email, password } = req.body;
 
-      if(!user) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
-
-      if(!user.validPassword(password)) throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
-
-      let payload = {
-        id:user_id,
-        exp: parseInt(Date.now() / 1000) * config.JWT.EXPIRE_TIME
-      }
-
-      let token = jwt.encode(payload, config.JWT.SECRET);
-
-      let userData = {
-        _id: user._id,
-        first_name: user.first_name,
-        last_name: user.last_name
-      }
-
-      res.json(Response.successResponse({token, user: userData}));
     
-  } catch(err) {
-   let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
-}
+    if (typeof Users.validateFieldsBeforeAuth === "function") {
+      Users.validateFieldsBeforeAuth(email, password);
+    }
+
+    let user = await Users.findOne({ email });
+
+    if (!user)
+      throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
+
+    
+    if (typeof user.validPassword !== "function") {
+      user.validPassword = (pass) => bcrypt.compareSync(pass, user.password);
+    }
+
+    if (!user.validPassword(password))
+      throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
+
+    
+    let payload = {
+      id: user._id.toString(),
+      exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
+    };
+
+    
+    let token = jwt.sign(payload, config.JWT.SECRET);
+
+    let userData = {
+      _id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name
+    };
+
+    res.json(Response.successResponse({ token, user: userData }));
+
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    return res.status(errorResponse.code).json(errorResponse);
+  }
 });
+
 
 router.all("*",auth.authenticate(), (req,rest,next) => {
     next();
@@ -256,6 +265,3 @@ router.post("/delete", auth.checkRoles("users_delete"),async (req, res) => {
 
 
 module.exports = router;
-
-
-

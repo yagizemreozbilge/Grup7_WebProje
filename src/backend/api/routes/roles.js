@@ -17,7 +17,7 @@ const auth = require('../lib/logger/auth')();
     next();
 })*/
 
-router.get("/", /*auth.checkRoles("roles_view")*/ async (req, res) => {
+router.get("/", auth.checkRoles("roles_view"),async (req, res) => {
   try {
     let roles = await Roles.find({});
     res.json(Response.successResponse(roles));
@@ -28,12 +28,12 @@ return res.status(errorResponse.code).json(errorResponse);
 });
 
 
-router.post("/add", /*auth.checkRoles("roles_add")*/ async(req,res) => {
+router.post("/add", auth.checkRoles("roles_add"),async (req, res) => {
   let body = req.body;
    try {
-    if(!body.role_name) throw CustomError(Enum,HTTP_CODES.BAD_REQUEST, "Validation Error!", "role_name field must be fiiled");
+    if(!body.role_name) throw new CustomError(Enum,HTTP_CODES.BAD_REQUEST, "Validation Error!", "role_name field must be fiiled");
     if(!body.permissions || !Array.isArray(body.permissions) || body.permissions.length == 0) {
-      throw CustomError(Enum,HTTP_CODES.BAD_REQUEST, "Validation Error!", "permission field must be an Array");
+      throw new CustomError(Enum,HTTP_CODES.BAD_REQUEST, "Validation Error!", "permission field must be an Array");
     }
 
     const exists = await Roles.findOne({ role_name: body.role_name });
@@ -81,30 +81,35 @@ router.post("/update", auth.checkRoles("roles_update"),async (req, res) => {
     if (body.role_name) updates.role_name = body.role_name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    if(!body.permissions && !Array.isArray(body.permissions) && body.permissions.length > 0) {
+    if (Array.isArray(body.permissions)) {
 
-      let permission = await RolePrivileges.find({role_id: body._id});
+  let permissions = await RolePrivileges.find({ role_id: body._id });
 
-      
-      let removedPermissions = permissions.filter(x => !body.permissions.includes(x.permissions));
-      let newPermissions = body.permissions.filter(x => !permissions.map(p => p.permission).includes(x));
+  let removedPermissions = permissions.filter(
+    x => !body.permissions.includes(x.permission)
+  );
 
-      if(removedPermissions.length>0) {
-        await RolePrivileges.privileges.remove({_id:{$in: removedPermissions.map(x=> x.id)}});
-      }
+  let newPermissions = body.permissions.filter(
+    x => !permissions.map(p => p.permission).includes(x)
+  );
 
-       if(newPermissions.length>0) {
-         for(let i=0; i<body.permissions.length; i++) {
-      let priv = new RolePrivileges({
-        role_id: role._id,
-        permission:body.permissions[i],
+  if (removedPermissions.length > 0) {
+    await RolePrivileges.deleteMany({
+      _id: { $in: removedPermissions.map(x => x._id) }
+    });
+  }
+
+  if (newPermissions.length > 0) {
+    for (let i = 0; i < newPermissions.length; i++) {
+      await RolePrivileges.create({
+        role_id: body._id,
+        permission: newPermissions[i],
         created_by: req.user?.id
       });
-      await priv.save();
     }
-      }
-     
-    }
+  }
+}
+ 
 
     
 
@@ -140,3 +145,6 @@ router.get("/role_privileges", async(req,res) => {
 
 
 module.exports = router; 
+
+
+
