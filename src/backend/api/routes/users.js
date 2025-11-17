@@ -66,13 +66,14 @@ router.post("/register", async(req,res) => {
       is_active: true,
       first_name: body.first_name,
       last_name: body.last_name,
-      phone_number: body.phone_number
+      phone_number: body.phone_number,
+      roles: body.roles
     });
 
     for (let i = 0; i < roles.length; i++) {
       await UserRoles.create({
         role_id: roles[i]._id,
-        user_id: user._id
+        user_id: createdUser._id
       })
     }
 

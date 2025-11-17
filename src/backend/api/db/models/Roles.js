@@ -26,7 +26,7 @@ class Roles extends mongoose.Model {
 
     async remove(query) {
 
-        if (query ? ._id) {
+        if (query ?._id) {
 
             await RolePrivileges.deleteMany({ role_id: query._id });
         }
@@ -36,7 +36,7 @@ class Roles extends mongoose.Model {
 
 
     static async deleteOne(query) {
-        if (query ? ._id) {
+        if (query ?._id) {
             await RolePrivileges.deleteMany({ role_id: query._id });
         }
 

@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-const auth = require("../lib/auth")();
+const auth = require("../lib/logger/auth")();
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const { HTTP_CODES } = require("../config/Enum");
