@@ -1,6 +1,5 @@
 module.exports = {
-    privGroups: [
-        {
+    privGroups: [{
             id: "USERS",
             name: "User Permissions"
         },
@@ -35,8 +34,7 @@ module.exports = {
         }
     ],
 
-    privileges: [
-        {
+    privileges: [{
             key: "user_view",
             name: "User View",
             group: "USERS",
@@ -84,12 +82,60 @@ module.exports = {
             group: "ROLES",
             description: "Role delete"
         },
-        
+
         {
             key: "auditlogs_view",
             name: "AuditLogs View",
             group: "AUDITLOGS",
             description: "AuditLogs View"
+        },
+        {
+            key: "field_view",
+            name: "Field View",
+            group: "FIELDS",
+            description: "Field view"
+        },
+        {
+            key: "field_add",
+            name: "Field Add",
+            group: "FIELDS",
+            description: "Field add"
+        },
+        {
+            key: "field_update",
+            name: "Field Update",
+            group: "FIELDS",
+            description: "Field update"
+        },
+        {
+            key: "field_delete",
+            name: "Field Delete",
+            group: "FIELDS",
+            description: "Field delete"
+        },
+        {
+            key: "reservation_view",
+            name: "Reservation View",
+            group: "RESERVATIONS",
+            description: "Reservation view"
+        },
+        {
+            key: "reservation_add",
+            name: "Reservation Add",
+            group: "RESERVATIONS",
+            description: "Reservation add"
+        },
+        {
+            key: "reservation_update",
+            name: "Reservation Update",
+            group: "RESERVATIONS",
+            description: "Reservation update"
+        },
+        {
+            key: "reservation_delete",
+            name: "Reservation Delete",
+            group: "RESERVATIONS",
+            description: "Reservation delete"
         }
     ]
 }
