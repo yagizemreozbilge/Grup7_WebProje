@@ -1,3 +1,4 @@
+// db/models/Customers.js
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
@@ -6,166 +7,90 @@ const schema = mongoose.Schema({
     first_name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
     last_name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
     email: {
         type: String,
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
     },
     phone_number: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
 
-    // Şifre (Kayıtlı müşteriler için)
+    // Opsiyonel şifre (kayıtlı müşteri için)
     password: {
         type: String,
-        required: false
+        required: false,
     },
 
-    // Adres Bilgileri
-    address: {
-        street: String,
-        city: String,
-        district: String,
-        postal_code: String,
-        country: {
-            type: String,
-            default: "Türkiye"
-        }
-    },
-
-    // Profil Bilgileri
-    profile_photo: {
-        type: String,
-        default: null
-    },
-    date_of_birth: {
-        type: Date,
-        default: null
-    },
-    gender: {
-        type: String,
-        enum: ["male", "female", "other"],
-        default: null
-    },
-
-    // İstatistikler
-    total_reservations: {
-        type: Number,
-        default: 0
-    },
-    completed_reservations: {
-        type: Number,
-        default: 0
-    },
-    cancelled_reservations: {
-        type: Number,
-        default: 0
-    },
-    total_spent: {
-        type: Number,
-        default: 0
-    },
-
-    // Favori Sahalar
-    favorite_fields: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "fields"
-    }],
-
-    // Bildirim Tercihleri
-    notification_preferences: {
-        email_notifications: {
-            type: Boolean,
-            default: true
-        },
-        sms_notifications: {
-            type: Boolean,
-            default: true
-        },
-        promotional_notifications: {
-            type: Boolean,
-            default: false
-        }
-    },
-
-    // Hesap Durumu
+    // Durum
     is_active: {
         type: Boolean,
-        default: true
-    },
-    is_verified: {
-        type: Boolean,
-        default: false
+        default: true,
     },
     is_guest: {
         type: Boolean,
-        default: false
+        default: false,
     },
 
-    // Doğrulama Kodları
-    verification_code: {
-        type: String,
-        default: null
+    // İstatistik
+    total_reservations: {
+        type: Number,
+        default: 0,
     },
-    verification_code_expires: {
-        type: Date,
-        default: null
-    },
-    reset_password_token: {
-        type: String,
-        default: null
-    },
-    reset_password_expires: {
-        type: Date,
-        default: null
+    total_spent: {
+        type: Number,
+        default: 0,
     },
 
-    // Son Aktivite
-    last_login: {
-        type: Date,
-        default: null
-    },
-    last_reservation: {
-        type: Date,
-        default: null
-    },
-
+    // Oluşturan kullanıcı (admin panelden eklendiyse)
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
-        default: null
-    }
+        default: null,
+    },
 }, {
     versionKey: false,
     timestamps: {
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
-    }
+        createdAt: "created_at",
+        updatedAt: "updated_at",
+    },
 });
 
-// Indexes
-schema.index({ email: 1 });
+// Indexler
+schema.index({ email: 1 }, { unique: true });
 schema.index({ phone_number: 1 });
 schema.index({ is_active: 1 });
 
-class Customers extends mongoose.Model {
+// Şifre değişiyorsa hashle
+schema.pre("save", async function(next) {
+    if (!this.isModified("password") || !this.password) return next();
 
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+class Customers extends mongoose.Model {
     validPassword(password) {
+        if (!this.password) return false;
         return bcrypt.compareSync(password, this.password);
     }
 
-    // Tam isim
     getFullName() {
         return `${this.first_name} ${this.last_name}`;
     }
