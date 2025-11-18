@@ -59,28 +59,28 @@ module.exports = {
             description: "User delete"
         },
         {
-            key: "role_view",
-            name: "Role View",
+            key: "roles_view",
+            name: "Roles View",
             group: "ROLES",
-            description: "Role view"
+            description: "Roles view"
         },
         {
-            key: "role_add",
-            name: "Role Add",
+            key: "roles_add",
+            name: "Roles Add",
             group: "ROLES",
-            description: "Role add"
+            description: "Roles add"
         },
         {
-            key: "role_update",
-            name: "Role Update",
+            key: "roles_update",
+            name: "Roles Update",
             group: "ROLES",
-            description: "Role update"
+            description: "Roles update"
         },
         {
-            key: "role_delete",
-            name: "Role Delete",
+            key: "roles_delete",
+            name: "Roles Delete",
             group: "ROLES",
-            description: "Role delete"
+            description: "Roles delete"
         },
 
         {
