@@ -8,7 +8,7 @@ const schema = mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        
     },
     password: {
         type: String,
@@ -51,5 +51,6 @@ class Users extends mongoose.Model {
 
 
 
-
+schema.index({ email: 1 }, { unique: true });
+schema.loadClass(Users);
 module.exports = mongoose.model("users", schema);

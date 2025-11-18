@@ -35,35 +35,30 @@ module.exports = {
     ],
 
     privileges: [{
-            key: "user_view",
-            name: "User View",
+            key: "users_view",
+            name: "Users View",
             group: "USERS",
-            description: "User view"
+            description: "Users view"
         },
         {
-            key: "user_add",
-            name: "User Add",
+            key: "users_add",
+            name: "Users Add",
             group: "USERS",
-            description: "User add"
+            description: "Users add"
         },
         {
-            key: "user_update",
-            name: "User Update",
+            key: "users_update",
+            name: "Users Update",
             group: "USERS",
-            description: "User update"
+            description: "Users update"
         },
         {
-            key: "user_delete",
-            name: "User Delete",
+            key: "users_delete",
+            name: "Users Delete",
             group: "USERS",
-            description: "User delete"
+            description: "Users delete"
         },
-        {
-            key: "roles_view",
-            name: "Roles View",
-            group: "ROLES",
-            description: "Roles view"
-        },
+        
         {
             key: "roles_add",
             name: "Roles Add",
@@ -90,52 +85,52 @@ module.exports = {
             description: "AuditLogs View"
         },
         {
-            key: "field_view",
-            name: "Field View",
+            key: "fields_view",
+            name: "Fields View",
             group: "FIELDS",
-            description: "Field view"
+            description: "Fields view"
         },
         {
-            key: "field_add",
-            name: "Field Add",
+            key: "fields_add",
+            name: "Fields Add",
             group: "FIELDS",
-            description: "Field add"
+            description: "Fields add"
         },
         {
-            key: "field_update",
-            name: "Field Update",
+            key: "fields_update",
+            name: "Fields Update",
             group: "FIELDS",
-            description: "Field update"
+            description: "Fields update"
         },
         {
-            key: "field_delete",
-            name: "Field Delete",
+            key: "fields_delete",
+            name: "Fields Delete",
             group: "FIELDS",
-            description: "Field delete"
+            description: "Fields delete"
         },
         {
-            key: "reservation_view",
-            name: "Reservation View",
+            key: "reservations_view",
+            name: "Reservations View",
             group: "RESERVATIONS",
-            description: "Reservation view"
+            description: "Reservations view"
         },
         {
-            key: "reservation_add",
-            name: "Reservation Add",
+            key: "reservations_add",
+            name: "Reservations Add",
             group: "RESERVATIONS",
-            description: "Reservation add"
+            description: "Reservations add"
         },
         {
-            key: "reservation_update",
-            name: "Reservation Update",
+            key: "reservations_update",
+            name: "Reservations Update",
             group: "RESERVATIONS",
-            description: "Reservation update"
+            description: "Reservations update"
         },
         {
-            key: "reservation_delete",
-            name: "Reservation Delete",
+            key: "reservations_delete",
+            name: "Reservations Delete",
             group: "RESERVATIONS",
-            description: "Reservation delete"
+            description: "Reservations delete"
         }
     ]
 }
