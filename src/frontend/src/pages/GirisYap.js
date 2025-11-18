@@ -48,12 +48,22 @@ function GirisYap() {
       // 4. BAŞARILI OLURSA
       setLoading(false);
       
-      // Backend'den gelen cevabı (token ve user) konsola yazdıralım
-      console.log('API CEVABI:', data); 
-      
-      // İleride: Gelen 'data.token' ve 'data.user' bilgilerini
-      // tarayıcı hafızasına (localStorage) kaydedip ana sayfaya yönlendireceğiz.
-      alert('Giriş Başarılı! Konsolu kontrol et.');
+      // ... (try bloğunun içi)
+console.log('API CEVABI:', data);
+
+// 1. Gelen veriyi (token ve user) tarayıcı hafızasına (localStorage) kaydediyoruz.
+// 'data.data' kullandık çünkü Backend bu şekilde yolluyor olabilir (Emin değilsek F12 Konsol'a bak)
+if (data.data && data.data.token) {
+    localStorage.setItem('userInfo', JSON.stringify(data.data));
+} else {
+    // Belki de veri doğrudan 'data' içindedir
+    localStorage.setItem('userInfo', JSON.stringify(data));
+}
+
+// 2. Başarılı girişten sonra kullanıcıyı Ana Sayfa'ya yönlendir.
+// Bunu yapabilmek için dosyanın en üstüne useNavigate'i import etmemiz lazım.
+// Sayfa yenilenir ve Navbar güncellenir.
+window.location.href = '/';
       
     } catch (err) {
       // 5. BAŞARISIZ OLURSA
