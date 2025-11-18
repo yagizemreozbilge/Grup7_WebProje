@@ -23,7 +23,40 @@ router.get('/', async(req, res) => {
   
 });
 
-/*  Alan Ekleme. */
+/* GET Tek Alan Detayini Getirme. */
+router.get('/:id', async(req, res) => {
+    const fieldId = req.params.id; 
+    
+    
+    try {
+        if(!fieldId) {
+            throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "ID parameter is missing");
+        }
+        
+        
+        if (!Fields.base.Types.ObjectId.isValid(fieldId)) {
+            
+            throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "Invalid Field ID format");
+        }
+       
+
+        let field = await Fields.findById(fieldId);
+
+        if (!field) {
+           
+            throw new CustomError(Enum.HTTP_CODES.NOT_FOUND, "Not Found", "Field not found with the given ID");
+        }
+
+        res.json(Response.successResponse(field));
+    } catch(err) {
+            let errorResponse = Response.errorResponse(err);
+           
+            return res.status(errorResponse.code).json(errorResponse);
+    }
+  
+});
+
+/* Alan Ekleme. */
 router.post("/add", async(req, res) => {
      let body = req.body;
     try {
