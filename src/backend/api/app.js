@@ -40,6 +40,9 @@ app.use('/reservations', require('./routes/reservations'));
 app.use('/fields', require('./routes/fields'));
 app.use('/tenants', require('./routes/tenants'));
 app.use('/auditlogs', require('./routes/auditlogs'));
+app.use('/customers', require('./routes/customers'));
+app.use('/admin', require('./routes/admin'));
+
 
 
 

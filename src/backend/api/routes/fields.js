@@ -4,10 +4,11 @@ const Fields = require("../db/models/Fields");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error")
 const Enum = require("../config/Enum");
-const AuditLogs = require("../db/models/AuditLogs");
+const AuditLogs = require("../db/models/AuditLogs"); 
+const { HTTP_CODES } = require('../config/Enum');
 
 
-/* GET Kategori Listeleme. */
+/* GET Alan Listeleme. */
 router.get('/', async(req, res) => {
 
     try {
@@ -16,21 +17,23 @@ router.get('/', async(req, res) => {
         res.json(Response.successResponse(fields));
     } catch(err) {
             let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
-
+           
+            return res.status(errorResponse.code).json(errorResponse);
     }
   
 });
 
-
+/*  Alan Ekleme. */
 router.post("/add", async(req, res) => {
      let body = req.body;
     try {
         if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
-        let fields = new Fields({
+        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id fields must be fiiled");
+        
+        let newField = new Fields({ 
             tenant_id:body.tenant_id,
             name:body.name,
-            photos:body.photos,
+            
             price_per_hour:body.price_per_hour,
             features:body.features,
             latitude:body.latitude,
@@ -40,30 +43,29 @@ router.post("/add", async(req, res) => {
             created_by: req.user?.id
         });
 
-        AuditLogs.info(req.user?.email, "Fields", "Add", field);
-        await field.save();
+        
+        await newField.save();
 
-        res.json(Response.successResponse({success: true}));
+        res.json(Response.successResponse({success: true, _id: newField._id})); 
     } catch(err) {
-          res.json(Response.errorResponse(err));
+          let errorResponse = Response.errorResponse(err);
+         
+          res.status(errorResponse.code).json(errorResponse);
           
     }
      
 });
 
-
-
-
+/* Alan Guncelleme. */
 router.post("/update", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
-     if (!tenant._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
-
+    if (!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+    
     let updates = {};
 
     if (body.name) updates.name = body.name;
-    if (body.photos) updates.photos = body.photos;
     if (body.price_per_hour) updates.price_per_hour = body.price_per_hour;
     if (body.features) updates.features = body.features;
     if (body.latitude) updates.latitude = body.latitude;
@@ -73,34 +75,36 @@ router.post("/update", async (req, res) => {
 
     await Fields.updateOne({ _id: body._id,tenant_id: body.tenant_id }, updates);
 
-    AuditLogs.info(req.user?.email, "Fields", "Update", { _id: body._id, ...updates });
+   
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
+   
     res.status(errorResponse.code).json(errorResponse);
   }
 });
 
-
-
+/* GET Alan Silme. */
 router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
-    if (!tenant._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+   
+    
+    if (!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
 
-    await Fields.deleteOne({ _id: body._id }); 
+    
+    await Fields.deleteOne({ _id: body._id, tenant_id: body.tenant_id }); 
 
-    AuditLogs.info(req.user?.email, "Fields", "Delete", { _id: body._id,tenant_id: body.tenant_id });
+    
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
+  
     res.status(errorResponse.code).json(errorResponse);
   }
 });
-
-
 
 module.exports = router;

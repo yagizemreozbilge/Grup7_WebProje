@@ -17,18 +17,23 @@ router.get('/', async(req, res) => {
         res.json(Response.successResponse(reservations));
     } catch(err) {
             let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
+            return res.status(errorResponse.code).json(errorResponse);
 
     }
   
 });
 
-
+/* GET Rezervasyon Ekleme. */
 router.post("/add", async(req, res) => {
      let body = req.body;
     try {
-        if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
-        let reservations = new Reservations({
+       
+        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id fields must be fiiled");
+        if(!body.start) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "start fields must be fiiled");
+        if(!body.end) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "end fields must be fiiled");
+        
+        
+        let newReservation = new Reservations({
             tenant_id:body.tenant_id,
             field_id:body.field_id,
             customer_id:body.customer_id,
@@ -36,31 +41,29 @@ router.post("/add", async(req, res) => {
             end:body.end,
             price:body.price,
             status:body.status,
-            client_request_id:body.client_request_id,
             is_active:true,
             created_by: req.user?.id
         });
 
-        AuditLogs.info(req.user?.email, "Reservations", "Add", reservation);
-        await reservation.save();
+        
+        await newReservation.save();
 
         res.json(Response.successResponse({success: true}));
     } catch(err) {
-          res.json(Response.errorResponse(err));
-          
+        let errorResponse = Response.errorResponse(err);
+        res.status(errorResponse.code).json(errorResponse);
     }
      
 });
 
-
-
-
+/* GET Rezervasyon Guncellenme. */
 router.post("/update", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
-    if (!field._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field._id field must be filled");
-    if (!customer._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "customer._id field must be filled");
+  
+    if (!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled");
+    if (!body.customer_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "customer_id field must be filled");
 
     let updates = {};
 
@@ -76,7 +79,7 @@ router.post("/update", async (req, res) => {
 
     await Reservations.updateOne({ _id: body._id, tenant_id:body.tenant_id, field_id:body.field_id, customer_id:body.customer_id}, updates);
 
-    AuditLogs.info(req.user?.email, "Reservations", "Update", { _id: body._id, ...updates });
+    
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
@@ -85,18 +88,18 @@ router.post("/update", async (req, res) => {
   }
 });
 
-
-
+/* GET Rezervasyon Silme. */
 router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
-    if (!field._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field._id field must be filled");
-    if (!customer._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "customer._id field must be filled");
+    
+    if (!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled");
+    if (!body.customer_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "customer_id field must be filled");
 
     await Reservations.deleteOne({ _id: body._id, tenant_id:body.tenant_id, field_id:body.field_id, customer_id:body.customer_id }); 
 
-    AuditLogs.info(req.user?.email, "Reservations", "Delete", { _id: body._id });
+    
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
@@ -104,7 +107,6 @@ router.post("/delete", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
-
 
 
 module.exports = router;
