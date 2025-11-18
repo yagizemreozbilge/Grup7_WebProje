@@ -20,6 +20,9 @@ const auth = require('../lib/logger/auth')();
 
 const DEFAULT_PLAYER_ROLE_ID = "690a455bd8be2c698c44152e";
 
+const RolePrivileges = require('../db/models/RolePrivileges');
+const privs = require('../config/role_privileges');
+
 
 
 
@@ -93,7 +96,6 @@ router.post("/auth", async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    
     if (typeof Users.validateFieldsBeforeAuth === "function") {
       Users.validateFieldsBeforeAuth(email, password);
     }
@@ -103,7 +105,6 @@ router.post("/auth", async (req, res) => {
     if (!user)
       throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
 
-    
     if (typeof user.validPassword !== "function") {
       user.validPassword = (pass) => bcrypt.compareSync(pass, user.password);
     }
@@ -112,12 +113,26 @@ router.post("/auth", async (req, res) => {
       throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
 
     
+    let userRoles = await UserRoles.find({ user_id: user._id });
+
+    let rolePrivileges = await RolePrivileges.find({
+        role_id: { $in: userRoles.map(ur => ur.role_id) }
+    });
+
+    let privileges = rolePrivileges
+        .map(rp => privs.privileges.find(x => x.key === rp.permission))
+        .filter(x => x); 
+    
+   
     let payload = {
-      id: user._id.toString(),
-      exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
+        id: user._id.toString(),
+        roles: privileges,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME
     };
 
-    
     let token = jwt.sign(payload, config.JWT.SECRET);
 
     let userData = {
@@ -133,7 +148,6 @@ router.post("/auth", async (req, res) => {
     return res.status(errorResponse.code).json(errorResponse);
   }
 });
-
 
 router.all("*",auth.authenticate(), (req,rest,next) => {
     next();
