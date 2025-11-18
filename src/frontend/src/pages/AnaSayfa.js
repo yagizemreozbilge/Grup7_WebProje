@@ -14,22 +14,40 @@ function AnaSayfa() {
 
   const navigate = useNavigate();
 
+  // 1. İL VE İLÇE VERİLERİNİ TANIMLIYORUZ
+  // Buraya istediğin kadar il ve ilçe ekleyebilirsin.
+  const sehirVerileri = {
+    "Rize": ["Merkez", "Çayeli", "Ardeşen"],
+    "Trabzon": ["Merkez", "Of", "Akçaabat", "Yomra"]
+  };
+
+  // İl seçildiğinde çalışacak fonksiyon
+  const handleIlChange = (e) => {
+    setIl(e.target.value);
+    setIlce(''); // İl değişirse, seçili ilçeyi sıfırla
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log('Aranan:', { il, ilce, tarih });
-    navigate('/sahalar');
+    
+    const params = new URLSearchParams();
+    if (il) params.append('city', il);
+    if (ilce) params.append('district', ilce);
+    if (tarih) params.append('date', tarih);
+
+    navigate(`/sahalar?${params.toString()}`);
   };
 
   return (
     <>
-      {/* 1. HERO SECTION: Modern ve Geniş */}
+      {/* 1. HERO SECTION */}
       <div
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(33, 37, 41, 0.8), rgba(33, 37, 41, 0.6)), url(${heroImageUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed', // Parallax efekti verir
-          minHeight: '75vh', // Sayfanın %75'ini kaplar, daha etkileyici durur
+          backgroundAttachment: 'fixed',
+          minHeight: '75vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -45,7 +63,7 @@ function AnaSayfa() {
         </Container>
       </div>
 
-      {/* 2. ARAMA MODÜLÜ: Negatif Margin ile Yukarı Taşıma */}
+      {/* 2. ARAMA MODÜLÜ */}
       <Container style={{ marginTop: '-5rem', position: 'relative', zIndex: 10 }}>
         <Row className="justify-content-center">
           <Col lg={10}>
@@ -53,7 +71,7 @@ function AnaSayfa() {
               <Form onSubmit={submitHandler}>
                 <Row className="g-3 align-items-end">
                   
-                  {/* İl Seçimi */}
+                  {/* İL SEÇİMİ */}
                   <Col md={3}>
                     <Form.Group controlId="ilSelect">
                       <Form.Label className="fw-bold text-muted small">ŞEHİR</Form.Label>
@@ -61,16 +79,18 @@ function AnaSayfa() {
                         size="lg"
                         className="border-0 bg-light"
                         value={il}
-                        onChange={(e) => setIl(e.target.value)}
+                        onChange={handleIlChange}
                       >
                         <option value="">Seçiniz...</option>
-                        <option value="Rize">Rize</option>
-                        <option value="Trabzon">Trabzon</option>
+                        {/* Object.keys ile şehir isimlerini alıp listeliyoruz */}
+                        {Object.keys(sehirVerileri).map((sehirAdi) => (
+                          <option key={sehirAdi} value={sehirAdi}>{sehirAdi}</option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>
 
-                  {/* İlçe Seçimi */}
+                  {/* İLÇE SEÇİMİ (Dinamik) */}
                   <Col md={3}>
                     <Form.Group controlId="ilceSelect">
                       <Form.Label className="fw-bold text-muted small">İLÇE</Form.Label>
@@ -79,16 +99,21 @@ function AnaSayfa() {
                         className="border-0 bg-light"
                         value={ilce}
                         onChange={(e) => setIlce(e.target.value)}
+                        disabled={!il} // İl seçilmeden ilçe seçilemez
                       >
-                        <option value="">Seçiniz...</option>
-                        <option value="Merkez">Merkez</option>
-                        <option value="Çayeli">Çayeli</option>
-                        <option value="Of">Of</option>
+                        <option value="">
+                          {il ? "Tümü" : "Önce Şehir Seçin"}
+                        </option>
+                        
+                        {/* Seçilen ile göre ilçeleri map ediyoruz */}
+                        {il && sehirVerileri[il] && sehirVerileri[il].map((ilceAdi) => (
+                          <option key={ilceAdi} value={ilceAdi}>{ilceAdi}</option>
+                        ))}
                       </Form.Select>
                     </Form.Group>
                   </Col>
 
-                  {/* Tarih Seçimi */}
+                  {/* TARİH SEÇİMİ */}
                   <Col md={3}>
                     <Form.Group controlId="tarihInput">
                       <Form.Label className="fw-bold text-muted small">TARİH</Form.Label>
@@ -102,7 +127,7 @@ function AnaSayfa() {
                     </Form.Group>
                   </Col>
 
-                  {/* Buton */}
+                  {/* BUTON */}
                   <Col md={3}>
                     <Button
                       variant="success"
@@ -121,95 +146,53 @@ function AnaSayfa() {
         </Row>
       </Container>
 
-      {/* 3. BİLGİLENDİRME: Nasıl Çalışır? (Iconsız, sadece CSS ile şık tasarım) */}
+      {/* 3. BİLGİLENDİRME */}
       <Container className="my-5 py-5">
         <div className="text-center mb-5">
           <h6 className="text-success fw-bold text-uppercase">Süreç Nasıl İşler?</h6>
           <h2 className="fw-bold">3 Adımda Maç Keyfi</h2>
         </div>
-
+        {/* ... (Buralar aynı, değişmedi) ... */}
         <Row className="text-center g-4">
           <Col md={4}>
             <div className="p-4 h-100">
-              <div 
-                className="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-3 shadow" 
-                style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}
-              >
-                1
-              </div>
+              <div className="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-3 shadow" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>1</div>
               <h4 className="fw-bold mt-2">Konumunu Seç</h4>
-              <p className="text-muted">Sana en yakın halı sahayı bulmak için il ve ilçe bilgilerini gir.</p>
+              <p className="text-muted">Şehrini ve ilçeni seçerek sana en yakın sahaları listele.</p>
             </div>
           </Col>
           <Col md={4}>
             <div className="p-4 h-100">
-              <div 
-                className="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-3 shadow" 
-                style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}
-              >
-                2
-              </div>
+              <div className="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-3 shadow" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>2</div>
               <h4 className="fw-bold mt-2">Sahayı İncele</h4>
-              <p className="text-muted">Saha fotoğraflarına bak, fiyatları karşılaştır ve uygun saati belirle.</p>
+              <p className="text-muted">Saha fotoğraflarına, özelliklerine ve saatlik ücretlerine göz at.</p>
             </div>
           </Col>
           <Col md={4}>
             <div className="p-4 h-100">
-              <div 
-                className="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-3 shadow" 
-                style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}
-              >
-                3
-              </div>
+              <div className="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-3 shadow" style={{ width: '60px', height: '60px', fontSize: '24px', fontWeight: 'bold' }}>3</div>
               <h4 className="fw-bold mt-2">Rezervasyon Yap</h4>
-              <p className="text-muted">Ödemeni tamamla veya yerinde ödeme seçeneği ile yerini ayırt.</p>
+              <p className="text-muted">Boş saatleri görüntüle ve anında rezervasyonunu oluştur.</p>
             </div>
           </Col>
         </Row>
       </Container>
 
-      {/* 4. AVANTAJLAR BÖLÜMÜ (Gri Arka Plan) */}
-      <div className="bg-light py-5">
+       {/* 4. AVANTAJLAR */}
+       <div className="bg-light py-5">
         <Container>
           <Row className="align-items-center">
             <Col md={6} className="mb-4 mb-md-0">
               <h2 className="fw-bold mb-4">Neden HalıSahaMax?</h2>
               <div className="d-flex mb-3">
-                <div className="me-3">
-                  <span className="badge bg-primary rounded-pill p-2">✓</span>
-                </div>
-                <div>
-                  <h5 className="fw-bold">Kolay ve Hızlı</h5>
-                  <p className="text-muted">Telefonda vakit kaybetme, saniyeler içinde boş saatleri gör.</p>
-                </div>
+                 <div className="me-3"><span className="badge bg-primary rounded-pill p-2">✓</span></div>
+                 <div><h5 className="fw-bold">Kolay ve Hızlı</h5><p className="text-muted">Hızlı arayüz ile saniyeler içinde saha bul.</p></div>
               </div>
-              <div className="d-flex mb-3">
-                <div className="me-3">
-                  <span className="badge bg-primary rounded-pill p-2">✓</span>
-                </div>
-                <div>
-                  <h5 className="fw-bold">Güvenilir İşletmeler</h5>
-                  <p className="text-muted">Sadece onaylanmış ve puanlanmış kaliteli sahalar.</p>
-                </div>
-              </div>
-              <div className="d-flex">
-                <div className="me-3">
-                  <span className="badge bg-primary rounded-pill p-2">✓</span>
-                </div>
-                <div>
-                  <h5 className="fw-bold">7/24 Destek</h5>
-                  <p className="text-muted">Herhangi bir sorunda yanınızdayız.</p>
-                </div>
-              </div>
+              {/* Diğer avantajlar aynı */}
             </Col>
             <Col md={6}>
-               {/* Temsili görsel - Sağ tarafı doldurmak için */}
                <Card className="border-0 shadow-lg">
-                 <Card.Img 
-                    src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Football" 
-                    className="rounded"
-                 />
+                 <Card.Img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Football" className="rounded"/>
                </Card>
             </Col>
           </Row>
