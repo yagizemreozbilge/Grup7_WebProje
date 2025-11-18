@@ -29,24 +29,19 @@ const schema = mongoose.Schema({
         type: String,
         required: true,
     },
-
-    // Admin tipi
     role: {
         type: String,
         enum: ["super_admin", "admin"],
         default: "admin",
     },
-
     is_active: {
         type: Boolean,
         default: true,
     },
-
     last_login: {
         type: Date,
         default: null,
     },
-
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
@@ -60,10 +55,11 @@ const schema = mongoose.Schema({
     },
 });
 
+// Index'ler
 schema.index({ email: 1 }, { unique: true });
 schema.index({ is_active: 1 });
 
-// Şifre hashle
+// Şifre hashle (middleware)
 schema.pre("save", async function(next) {
     if (!this.isModified("password") || !this.password) return next();
 
@@ -76,16 +72,14 @@ schema.pre("save", async function(next) {
     }
 });
 
-class Admin extends mongoose.Model {
-    validPassword(password) {
-        return bcrypt.compareSync(password, this.password);
-    }
+// Instance metodları (doğru şekilde)
+schema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+};
 
-    getFullName() {
-        return `${this.first_name} ${this.last_name}`;
-    }
-}
+schema.methods.getFullName = function() {
+    return `${this.first_name} ${this.last_name}`;
+};
 
-schema.loadClass(Admin);
-
-module.exports = mongoose.model("admins", schema);
+// ✅ Model zaten varsa onu kullan, yoksa yeni oluştur
+module.exports = mongoose.models.admins || mongoose.model("admins", schema);

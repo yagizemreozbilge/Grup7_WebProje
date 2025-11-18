@@ -8,7 +8,7 @@ const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require('../config/Enum');
 
 
-/* GET Kategori Listeleme. */
+/* GET Uygunluk Listeleme. */
 router.get('/', async(req, res) => {
 
     try {
@@ -17,8 +17,7 @@ router.get('/', async(req, res) => {
         res.json(Response.successResponse(availabilities));
     } catch(err) {
             let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
-
+            return res.status(errorResponse.code).json(errorResponse);
     }
   
 });
@@ -27,8 +26,14 @@ return res.status(errorResponse.code).json(errorResponse);
 router.post("/add", async(req, res) => {
      let body = req.body;
     try {
-        if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
-        let availabilities = new Availabilities({
+        
+        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id fields must be fiiled");
+        if(!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id fields must be fiiled");
+        if(!body.weekday) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "weekday fields must be fiiled");
+        if(!body.start_time) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "start_time fields must be fiiled");
+        if(!body.end_time) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "end_time fields must be fiiled");
+        
+        let newAvailability = new Availabilities({ 
             tenant_id:body.tenant_id,
             field_id:body.field_id,
             weekday:body.weekday,
@@ -38,27 +43,30 @@ router.post("/add", async(req, res) => {
             created_by: req.user?.id
         });
 
-        AuditLogs.info(req.user?.email, "Availabilities", "Add", availability);
-        await availabilities.save();
+      
+        await newAvailability.save();
 
         res.json(Response.successResponse({success: true}));
     } catch(err) {
-          res.json(Response.errorResponse(err));
-          
+          let errorResponse = Response.errorResponse(err);
+          res.status(errorResponse.code).json(errorResponse);
     }
      
 });
-
-
 
 
 router.post("/update", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
-    if (!body.tenant._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
-    if (!body.field._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled");
+   
+    if (!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled"); 
+    if (!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled"); 
+    
     let updates = {};
+
+   
+    if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
     if (body.weekday) {
       const WEEKDAYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
@@ -72,18 +80,22 @@ router.post("/update", async (req, res) => {
       updates.weekday = body.weekday;
     }
 
-    if (!body.start_time && !body.end_time) {
+    
+    const hasStartTime = body.start_time !== undefined;
+    const hasEndTime = body.end_time !== undefined;
+
+    if (hasStartTime && hasEndTime) {
       updates.start_time = body.start_time;
-  updates.end_time = body.end_time;
-    } else {
-      throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!","start_time and end_time must be filled");
+      updates.end_time = body.end_time;
+    } else if (hasStartTime || hasEndTime) {
+       
+       throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!","start_time and end_time must be provided together or not at all.");
     }
-    if (body.name) updates.name = body.name;
-    if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
+
 
     await Availabilities.updateOne({ _id: body._id, tenant_id: body.tenant_id, field_id: body.field_id }, updates);
 
-    AuditLogs.info(req.user?.email, "Availabilities", "Update", { _id: body._id, ...updates });
+ 
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
@@ -91,19 +103,19 @@ router.post("/update", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
-
 
 
 router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
-    if (!body.tenant._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
-    if (!body.field._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled");
+    
+    if (!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+    if (!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled");
 
     await Availabilities.deleteOne({ _id: body._id,tenant_id: body.tenant_id,field_id: body.field_id }); 
 
-    AuditLogs.info(req.user?.email, "Availabilities", "Delete", { _id: body._id, tenant_id: body.tenant_id, field_id: body.field_id });
+ 
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
@@ -111,7 +123,5 @@ router.post("/delete", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
-
-
 
 module.exports = router;

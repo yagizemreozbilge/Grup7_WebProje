@@ -20,6 +20,7 @@ import SahaListeleme from './pages/SahaListeleme';
 import SahaDetay from './pages/SahaDetay';
 import KullaniciPanel from './pages/KullaniciPanel';
 import AdminPanel from './pages/AdminPanel';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // 2. ANA UYGULAMA FONKSİYONU
 function App() {
@@ -48,7 +49,11 @@ function App() {
             {/* /saha/1 veya /saha/abc gibi linklere tıklandığında SahaDetay sayfasını açar. */}
             <Route path="/saha/:id" element={<SahaDetay />} />
 
-            <Route path="/panel" element={<KullaniciPanel />} />
+            <Route path="/panel" element={
+  <ProtectedRoute>
+    <KullaniciPanel />
+  </ProtectedRoute>
+} />
             <Route path="/admin" element={<AdminPanel />} />
 
           </Routes>

@@ -21,7 +21,7 @@ router.get('/', async(req, res) => {
     }
 });
 
-/* POST Admin Ekleme. */
+/* Admin Ekleme. */
 router.post('/add', async(req, res) => {
     let body = req.body;
     try {
@@ -65,7 +65,7 @@ router.post('/add', async(req, res) => {
             last_name: body.last_name,
             email: body.email,
             phone_number: body.phone_number,
-            password: body.password, // hash modelde
+            password: body.password, 
             role: body.role || "admin",
             is_active: body.is_active !== undefined ? body.is_active : true,
             created_by: body.created_by || null,
@@ -88,7 +88,7 @@ router.post('/add', async(req, res) => {
     }
 });
 
-/* POST Admin Güncelleme. */
+/* Admin Güncelleme. */
 router.post('/update', async(req, res) => {
     let body = req.body;
     try {
@@ -109,7 +109,7 @@ router.post('/update', async(req, res) => {
         if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
         if (body.password) {
-            updates.password = body.password; // hash model pre-save
+            updates.password = body.password; 
         }
 
         let admin = await Admin.findOne({ _id: body._id });
@@ -139,7 +139,7 @@ router.post('/update', async(req, res) => {
     }
 });
 
-/* POST Admin Silme. */
+/* Admin Silme. */
 router.post('/delete', async(req, res) => {
     let body = req.body;
     try {
