@@ -73,7 +73,7 @@ function SahaListeleme() {
             // bir "Col" (sütun) ve "Card" (kart) oluşturur.
             <Col key={saha._id} sm={12} md={6} lg={4} xl={3}>
               <Card className="my-3 p-3 rounded">
-                {/* <Card.Img src={saha.photos[0]} variant="top" /> // Eğer fotoğraf varsa */}
+                { <Card.Img src={saha.photos[0]} variant="top" /> }
                 <Card.Body>
                   <Card.Title as="div">
                     {/* /saha/:id linkine yönlendirme */}
