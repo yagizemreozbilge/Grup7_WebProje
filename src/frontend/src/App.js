@@ -21,6 +21,7 @@ import SahaDetay from './pages/SahaDetay';
 import KullaniciPanel from './pages/KullaniciPanel';
 import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
+import SahaEkle from './pages/SahaEkle';
 
 // 2. ANA UYGULAMA FONKSİYONU
 function App() {
@@ -44,6 +45,7 @@ function App() {
             <Route path="/giris-yap" element={<GirisYap />} />
             <Route path="/kayit-ol" element={<KayitOl />} />
             <Route path="/sahalar" element={<SahaListeleme />} />
+            <Route path="/saha-ekle" element={<SahaEkle />} />
 
             {/* Bu özel bir yoldur. :id demek "değişken" demektir. */}
             {/* /saha/1 veya /saha/abc gibi linklere tıklandığında SahaDetay sayfasını açar. */}

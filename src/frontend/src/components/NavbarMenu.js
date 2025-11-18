@@ -1,20 +1,24 @@
 // src/components/NavbarMenu.js
 
 import React from 'react';
-// 1. YENİ: Dropdown (Açılır Menü) bileşenini ekledik
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
-function NavbarMenu() {
-  // 2. HAFIZAYI OKU: Tarayıcı hafızasındaki 'userInfo'yu çek
-  const userInfoStorage = localStorage.getItem('userInfo');
-  // Hafızadaki yazı (string), JSON objesine çevrilir
-  const userInfo = userInfoStorage ? JSON.parse(userInfoStorage) : null;
+// !!! BURAYA KENDİ 'TENANT' (SAHA SAHİBİ) ID'Nİ YAPIŞTIR !!!
+const TENANT_ROLE_ID = '691cb77d0669223adc742b83'; 
 
-  // 3. ÇIKIŞ YAP (Logout) Fonksiyonu
+function NavbarMenu() {
+  const userInfoStorage = localStorage.getItem('userInfo');
+  const userInfo = userInfoStorage ? JSON.parse(userInfoStorage) : null;
+  const user = userInfo ? (userInfo.user || userInfo) : null;
+
+  // Kullanıcının Saha Sahibi olup olmadığını kontrol et
+  // (Backend'den 'roles' dizisi gelince çalışır)
+  const isTenant = user && user.roles && user.roles.includes(TENANT_ROLE_ID);
+
   const logoutHandler = () => {
-    localStorage.removeItem('userInfo'); // Hafızayı temizle
-    window.location.href = '/giris-yap'; // Giriş sayfasına yolla
+    localStorage.removeItem('userInfo');
+    window.location.href = '/giris-yap';
   };
 
   return (
@@ -23,44 +27,55 @@ function NavbarMenu() {
         <LinkContainer to="/">
           <Navbar.Brand>HalıSahaMax</Navbar.Brand>
         </LinkContainer>
-
+        
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-
-          {/* Linkler (Sağ Taraf) */}
+          
           <Nav className="ms-auto">
-
+            
             <LinkContainer to="/sahalar">
               <Nav.Link>Sahalar</Nav.Link>
             </LinkContainer>
 
-            {/* 4. "AKILLI" BÖLÜM (Koşullu Render) */}
-            {userInfo ? (
-              // EĞER KULLANICI GİRİŞ YAPMIŞSA (userInfo varsa):
-              <NavDropdown title={`Merhaba, ${userInfo.user?.first_name || 'Kullanıcı'}`} id="username">
+            {/* SAHA EKLE BUTONU (Sadece Saha Sahiplerine Özel) */}
+            {isTenant && (
+                <LinkContainer to="/saha-ekle">
+                    <Nav.Link className="text-warning fw-bold">+ Saha Ekle</Nav.Link>
+                </LinkContainer>
+            )}
 
+            {user ? (
+              <NavDropdown title={`Merhaba, ${user.first_name || 'Kullanıcı'}`} id="username">
+                
                 <LinkContainer to="/panel">
                   <NavDropdown.Item>Profilim</NavDropdown.Item>
                 </LinkContainer>
 
+                {/* Dropdown içinde de gösterelim */}
+                {isTenant && (
+                    <LinkContainer to="/saha-ekle">
+                        <NavDropdown.Item>Saha Ekle</NavDropdown.Item>
+                    </LinkContainer>
+                )}
+                
+                <NavDropdown.Divider />
                 <NavDropdown.Item onClick={logoutHandler}>
                   Çıkış Yap
                 </NavDropdown.Item>
 
               </NavDropdown>
             ) : (
-              // EĞER GİRİŞ YAPMAMIŞSA (userInfo null ise):
               <>
                 <LinkContainer to="/giris-yap">
                   <Nav.Link>Giriş Yap</Nav.Link>
                 </LinkContainer>
-
+                
                 <LinkContainer to="/kayit-ol">
                   <Nav.Link>Kayıt Ol</Nav.Link>
                 </LinkContainer>
               </>
             )}
-
+            
           </Nav>
         </Navbar.Collapse>
       </Container>
