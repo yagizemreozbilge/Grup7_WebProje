@@ -24,7 +24,7 @@ const schema = mongoose.Schema({
 class Roles extends mongoose.Model {
 
 
-    async remove(query) {
+    async removeRole(query) {
 
         if (query ?._id) {
 

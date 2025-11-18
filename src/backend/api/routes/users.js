@@ -114,15 +114,15 @@ router.post("/auth", async (req, res) => {
 
     
     let userRoles = await UserRoles.find({ user_id: user._id });
-
+    console.log('ADIM 1: Çekilen Kullanici Rolleri Sayisi:', userRoles.length);
     let rolePrivileges = await RolePrivileges.find({
         role_id: { $in: userRoles.map(ur => ur.role_id) }
     });
-
+    console.log('ADIM 2: Çekilen İzin Kayitlari Sayisi:', rolePrivileges.length);
     let privileges = rolePrivileges
         .map(rp => privs.privileges.find(x => x.key === rp.permission))
         .filter(x => x); 
-    
+    console.log('ADIM 3: Son Olarak JWT\'ye Eklenen İzinler:', privileges.map(p => p.key));
    
     let payload = {
         id: user._id.toString(),
@@ -138,7 +138,9 @@ router.post("/auth", async (req, res) => {
     let userData = {
       _id: user._id,
       first_name: user.first_name,
-      last_name: user.last_name
+      last_name: user.last_name,
+      email: user.email,       
+      phone_number: user.phone_number 
     };
 
     res.json(Response.successResponse({ token, user: userData }));
