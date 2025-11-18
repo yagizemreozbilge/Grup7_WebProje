@@ -2,83 +2,90 @@
 
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import axios from 'axios'; // <--- 1. KURYEMİZİ (AXIOS) ÇAĞIRDIK
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
+// 1. ROLLERİN KİMLİK KARTLARI (ID'LER)
+// DİKKAT: Buradaki 'tenant' ID'sini senin MongoDB'den kopyaladığın ile değiştir!
+const ROLE_IDS = {
+    player: '691afa1e97ba5acd7a24deb9', // Senin resimdeki PLAYER ID
+    admin: '691afbc67f8ee4b7ed654dce',  // Senin resimdeki ADMIN ID
+    tenant: '691cb77d0669223adc742b83' 
+};
 
-const API_BASE_URL = 'http://localhost:5000'; 
-
-
-const MUSTERI_ROLE_ID = '691afa1e97ba5acd7a24deb9'; 
-// -----------------------------------------------------------------
-
+const API_BASE_URL = 'http://localhost:5000';
 
 function KayitOl() {
-  // Form verilerini tutan "state"ler
+  // State Tanımlamaları
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  
+  // Rol Seçimi (Varsayılan: Oyuncu)
+  const [selectedRole, setSelectedRole] = useState('player'); 
 
-  // API'den gelen hata veya başarıyı tutan "state"ler
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null); // Şifre uyuşmazlığı mesajı için
+  const [message, setMessage] = useState(null);
 
-  // Form gönderildiğinde çalışacak fonksiyon
+  const navigate = useNavigate();
+
   const submitHandler = async (e) => {
-    e.preventDefault(); // Sayfanın yenilenmesini engeller
+    e.preventDefault();
 
-    // 2. Basit form kontrolü
+    // Şifre Kontrolü
     if (password !== confirmPassword) {
       setMessage('Şifreler uyuşmuyor!');
       return;
     }
 
-    // 3. Hata/Yükleniyor durumlarını sıfırla
     setError(null);
     setMessage(null);
     setLoading(true);
 
     try {
-      // 4. AXIOS İLE API İSTEĞİ (POST)
-      // Bizim deşifre ettiğimiz link: /users/register
-
       const config = {
         headers: {
           'Content-Type': 'application/json',
         },
       };
 
-      // Kuryemiz (axios) mektubu (veriyi) yolluyor
+      // Seçilen rolün ID'sini alıyoruz
+      const roleIdToSend = ROLE_IDS[selectedRole];
+
+      // Eğer ID bulunamazsa hata vermesin diye kontrol
+      if (!roleIdToSend || roleIdToSend.includes('BURAYA')) {
+         setError('Lütfen kodun içindeki ROLE_IDS kısmına geçerli bir ID girin!');
+         setLoading(false);
+         return;
+      }
+
       const { data } = await axios.post(
-        `${API_BASE_URL}/users/register`, // <-- Tam API linki
+        `${API_BASE_URL}/users/register`,
         { 
           email: email, 
           password: password,
           first_name: firstName,
           last_name: lastName,
           phone_number: phoneNumber,
-          roles: [MUSTERI_ROLE_ID] // <-- İŞTE O "LANET" ID'NİN KULLANILDIĞI YER
+          roles: [ roleIdToSend ] // <-- Seçilen Rolün ID'si Gidiyor
         },
         config
       );
 
-      // 5. BAŞARILI OLURSA
       setLoading(false);
-      console.log('API CEVABI:', data); 
-      alert('Kayıt Başarılı! Şimdi Giriş Yapabilirsiniz.');
-      // (İleride otomatik Giriş Yap sayfasına yönlendirilebilir)
-
+      console.log('Kayıt Başarılı:', data); 
+      navigate('/giris-yap');
+      
     } catch (err) {
-      // 6. BAŞARISIZ OLURSA
       setLoading(false);
-      const message = err.response && err.response.data.message
-          ? err.response.data.message
+      const errorMsg = err.response && err.response.data.error 
+          ? err.response.data.error.description 
           : err.message;
-      setError(message);
+      setError('Kayıt Hatası: ' + errorMsg);
     }
   };
 
@@ -86,60 +93,85 @@ function KayitOl() {
     <Container>
       <Row className="justify-content-md-center mt-5">
         <Col xs={12} md={6}>
-          <h1>Kayıt Ol</h1>
-
-          {/* Hata veya Mesaj varsa Uyarı göster */}
-          {message && <Alert variant="danger">{message}</Alert>}
+          <h1 className="mb-4">Kayıt Ol</h1>
+          
+          {message && <Alert variant="warning">{message}</Alert>}
           {error && <Alert variant="danger">{error}</Alert>}
           {loading && <h3>Yükleniyor...</h3>}
 
           <Form onSubmit={submitHandler}>
-
-            <Form.Group controlId="firstName" className="my-3">
-              <Form.Label>Ad</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Adınızı girin"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              ></Form.Control>
+            
+            {/* ROL SEÇİMİ */}
+            <Form.Group className="mb-3 p-3 border rounded bg-light">
+                <Form.Label className="fw-bold">Hesap Türü Seçin</Form.Label>
+                <Form.Select 
+                    value={selectedRole} 
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                    <option value="player">Müşteri</option>
+                    <option value="tenant">Saha Sahibi</option>
+                </Form.Select>
+                <Form.Text className="text-muted">
+                    {selectedRole === 'player' 
+                        ? 'Sahaları listeleyebilir ve rezervasyon yapabilirsiniz.' 
+                        : 'Kendi halı sahalarınızı sisteme ekleyip yönetebilirsiniz.'}
+                </Form.Text>
             </Form.Group>
 
-            <Form.Group controlId="lastName" className="my-3">
-              <Form.Label>Soyad</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Soyadınızı girin"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              ></Form.Control>
-            </Form.Group>
+            <Row>
+                <Col>
+                    <Form.Group controlId="firstName" className="mb-3">
+                    <Form.Label>Ad</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Adınız"
+                        required
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                    ></Form.Control>
+                    </Form.Group>
+                </Col>
+                <Col>
+                    <Form.Group controlId="lastName" className="mb-3">
+                    <Form.Label>Soyad</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Soyadınız"
+                        required
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                    ></Form.Control>
+                    </Form.Group>
+                </Col>
+            </Row>
 
-            <Form.Group controlId="email" className="my-3">
+            <Form.Group controlId="email" className="mb-3">
               <Form.Label>Email Adresi</Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Email adresinizi girin"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               ></Form.Control>
             </Form.Group>
-
-            <Form.Group controlId="phoneNumber" className="my-3">
-              <Form.Label>Telefon Numarası (Opsiyonel)</Form.Label>
+            
+            <Form.Group controlId="phoneNumber" className="mb-3">
+              <Form.Label>Telefon Numarası</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Telefon numaranızı girin"
+                placeholder="0555..."
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
               ></Form.Control>
             </Form.Group>
 
-            <Form.Group controlId="password" className="my-3">
+            <Form.Group controlId="password" className="mb-3">
               <Form.Label>Şifre</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Şifrenizi girin"
+                placeholder="Şifre belirleyin"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               ></Form.Control>
@@ -149,22 +181,23 @@ function KayitOl() {
               <Form.Label>Şifre (Tekrar)</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="Şifrenizi tekrar girin"
+                placeholder="Şifreyi tekrar girin"
+                required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               ></Form.Control>
             </Form.Group>
 
-            <Button type="submit" variant="primary" className="mt-3" disabled={loading}>
+            <Button type="submit" variant="primary" className="mt-4 w-100" disabled={loading}>
               Kayıt Ol
             </Button>
-
+          
           </Form>
 
-          <Row className="py-3">
+          <Row className="py-3 text-center">
             <Col>
-              Hesabın var mı?{' '}
-              <Link to="/giris-yap">Giriş Yap</Link>
+              Zaten hesabın var mı?{' '}
+              <Link to="/giris-yap" className="fw-bold">Giriş Yap</Link>
             </Col>
           </Row>
 
