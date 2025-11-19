@@ -7,10 +7,8 @@ import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = 'http://localhost:5000'; 
 
-// !!! DİKKAT !!!
-// Buraya senin MongoDB'deki 'tenant' (Saha Sahibi) Rol ID'ni yazmalısın.
-// (KayitOl.js dosyasında kullandığın ID ile AYNI olmalı)
-const TENANT_ROLE_ID = 'BURAYA-TENANT-ID-YAZ'; 
+
+const TENANT_ROLE_ID = '691cb77d0669223adc742b83'; 
 
 function KullaniciPanel() {
   const [user, setUser] = useState(null);
@@ -49,8 +47,15 @@ function KullaniciPanel() {
 
   if (!user) return <Container className="mt-5">Yükleniyor...</Container>;
 
-  // Kullanıcının Saha Sahibi olup olmadığını kontrol et
-  // (Roller backend'den bazen dizi, bazen string gelebilir, kontrol ediyoruz)
+  // --- AJAN KOD BAŞLANGICI ---
+  console.log("--- PROFİL DEBUG ---");
+  console.log("Kullanıcı Bilgisi:", user);
+  console.log("Kullanıcının Rolleri:", user.roles);
+  console.log("Beklenen Tenant ID:", TENANT_ROLE_ID);
+  
+  const rolVarMi = user.roles && user.roles.includes(TENANT_ROLE_ID);
+  console.log("Rol Eşleşmesi Sonucu:", rolVarMi);
+  // --- AJAN KOD BİTİŞİ ---
   const isTenant = user.roles && user.roles.includes(TENANT_ROLE_ID);
 
   return (

@@ -51,7 +51,6 @@ function SahaEkle() {
         // 3. İsteği Yolla (POST /fields/add)
         await axios.post(`${API_BASE_URL}/fields/add`, payload);
         
-        alert('✅ Saha Başarıyla Eklendi!');
         navigate('/sahalar'); // Listeye yönlendir
         
     } catch (err) {

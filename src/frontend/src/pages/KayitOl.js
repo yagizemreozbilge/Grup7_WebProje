@@ -36,6 +36,8 @@ function KayitOl() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+   
+
     // Şifre Kontrolü
     if (password !== confirmPassword) {
       setMessage('Şifreler uyuşmuyor!');
@@ -56,11 +58,7 @@ function KayitOl() {
       // Seçilen rolün ID'sini alıyoruz
       const roleIdToSend = ROLE_IDS[selectedRole];
 
-      if (!roleIdToSend || roleIdToSend.includes('691cb77d0669223adc742b83')) {
-        setError('Lütfen ROLE_IDS kısmında geçerli bir Saha Sahibi ID\'si girildiğinden emin olun!');
-        setLoading(false);
-        return;
-      }
+     
 
       const { data } = await axios.post(
         `${API_BASE_URL}/users/register`,
