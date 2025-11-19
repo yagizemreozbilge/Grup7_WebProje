@@ -23,6 +23,7 @@ import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import SahaEkle from './pages/SahaEkle';
 
+
 // 2. ANA UYGULAMA FONKSİYONU
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path="/kayit-ol" element={<KayitOl />} />
             <Route path="/sahalar" element={<SahaListeleme />} />
             <Route path="/saha-ekle" element={<SahaEkle />} />
+            <Route path="/admin" element={<AdminPanel />} />
 
             {/* Bu özel bir yoldur. :id demek "değişken" demektir. */}
             {/* /saha/1 veya /saha/abc gibi linklere tıklandığında SahaDetay sayfasını açar. */}
