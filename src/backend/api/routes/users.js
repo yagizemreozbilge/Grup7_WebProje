@@ -18,7 +18,7 @@ const { HTTP_CODES } = require('../config/Enum');
 const config = require("../config");
 const auth = require('../lib/logger/auth')();
 
-const DEFAULT_PLAYER_ROLE_ID = "690a455bd8be2c698c44152e";
+
 
 const RolePrivileges = require('../db/models/RolePrivileges');
 const privs = require('../config/role_privileges');
@@ -52,7 +52,7 @@ router.post("/register", async(req,res) => {
 
 
     if (!body.roles || !Array.isArray(body.roles) || body.roles.length === 0) {
-      body.roles = [DEFAULT_PLAYER_ROLE_ID];
+      body.roles = req.body;
     }
 
     let roles = await Roles.find({ _id: { $in: body.roles } });
