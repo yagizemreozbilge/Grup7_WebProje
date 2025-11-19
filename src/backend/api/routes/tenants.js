@@ -8,7 +8,6 @@ const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require('../config/Enum');
 
 
-
 router.get('/', async(req, res) => {
     try {
         let tenants = await Tenants.find({});
@@ -20,32 +19,53 @@ router.get('/', async(req, res) => {
 });
 
 
+
 router.post("/add", async(req, res) => {
-     let body = req.body;
+    let body = req.body;
     try {
-        if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
+
+        if (!body.name)
+            throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name field must be filled");
+
+        if (!body.owner_user_id)
+            throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "owner_user_id field must be filled");
+
+        let exists = await Tenants.findOne({
+            name: body.name.trim(),
+            owner_user_id: body.owner_user_id
+        });
+
+        if (exists) {
+            
+            throw new CustomError(
+                Enum.HTTP_CODES.CONFLICT,
+                "Already Exists!",
+                "This tenant already exists for this owner."
+            );
+        }
+
         
         let newTenant = new Tenants({
-            name:body.name,
-            owner_user_id:body.owner_user_id,
-            billing_info:body.billing_info,
-            is_active:true,
+            name: body.name,
+            owner_user_id: body.owner_user_id,
+            billing_info: body.billing_info,
+            is_active: true,
             created_by: req.user?.id
         });
 
-        
-
         await newTenant.save();
 
-        res.json(Response.successResponse({success: true, _id: newTenant._id})); 
+        res.status(HTTP_CODES.CREATED).json(
+            Response.successResponse({
+                success: true,
+                _id: newTenant._id
+            })
+        );
 
     } catch(err) {
-          
-          let errorResponse = Response.errorResponse(err);
-          res.status(errorResponse.code).json(errorResponse);
-          
+        let errorResponse = Response.errorResponse(err);
+        res.status(errorResponse.code).json(errorResponse);
     }
-     
 });
 
 
@@ -64,14 +84,13 @@ router.post("/update", async (req, res) => {
 
     await Tenants.updateOne({ _id: body._id, owner_user_id:body.owner_user_id }, updates);
 
-   
-
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
     res.status(errorResponse.code).json(errorResponse); 
   }
 });
+
 
 
 router.post("/delete", async (req, res) => {
@@ -81,8 +100,6 @@ router.post("/delete", async (req, res) => {
     if (!body.owner_user_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "owner_user_id field must be filled");
     
     await Tenants.deleteOne({ _id: body._id, owner_user_id:body.owner_user_id }); 
-
-   
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {

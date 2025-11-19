@@ -23,15 +23,30 @@ router.get('/', async(req, res) => {
 router.post("/add", async(req, res) => {
     let body = req.body;
     try {
-        
+
         if (!body.first_name || !body.last_name || !body.email || !body.phone_number) {
             throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "first_name, last_name, email, and phone_number fields must be filled.");
         }
+
         
-        
+        let exists = await Customers.findOne({
+            $or: [
+                { email: body.email.trim() },
+                { phone_number: body.phone_number.trim() }
+            ]
+        });
+
+        if (exists) {
+            throw new CustomError(
+                Enum.HTTP_CODES.CONFLICT,
+                "Already Exists!",
+                "A customer with this email or phone number already exists."
+            );
+        }
+
         const isRegistered = body.is_guest === false || body.is_guest === undefined;
         if (isRegistered && !body.password) {
-            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "Password field must be filled for non-guest users.");
+            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "Password must be filled for non-guest users.");
         }
 
         let newCustomer = new Customers({
@@ -39,21 +54,24 @@ router.post("/add", async(req, res) => {
             last_name: body.last_name,
             email: body.email,
             phone_number: body.phone_number,
-            password: body.password, 
+            password: body.password,
             is_guest: body.is_guest,
             is_active: true,
             created_by: req.user?.id 
         });
 
-       
         await newCustomer.save();
 
-        res.json(Response.successResponse({ success: true, customer_id: newCustomer._id }));
+        res.status(HTTP_CODES.CREATED).json(
+            Response.successResponse({ success: true, customer_id: newCustomer._id })
+        );
+
     } catch(err) {
         let errorResponse = Response.errorResponse(err);
         res.status(errorResponse.code).json(errorResponse);
     }
 });
+
 
 /* Musteri Guncelleme */
 router.post("/update", async (req, res) => {

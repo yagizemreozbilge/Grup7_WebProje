@@ -27,32 +27,55 @@ router.post("/add", async(req, res) => {
      let body = req.body;
     try {
         
-        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id fields must be fiiled");
-        if(!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id fields must be fiiled");
-        if(!body.weekday) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "weekday fields must be fiiled");
-        if(!body.start_time) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "start_time fields must be fiiled");
-        if(!body.end_time) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "end_time fields must be fiiled");
+        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+        if(!body.field_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "field_id field must be filled");
+        if(!body.weekday) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "weekday field must be filled");
+        if(!body.start_time) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "start_time field must be filled");
+        if(!body.end_time) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "end_time field must be filled");
+
+        
+        let exists = await Availabilities.findOne({
+            tenant_id: body.tenant_id,
+            field_id: body.field_id,
+            weekday: body.weekday,
+            start_time: body.start_time,
+            end_time: body.end_time
+        });
+
+        if (exists) {
+            throw new CustomError(
+                Enum.HTTP_CODES.CONFLICT,
+                "Already Exists!",
+                "This availability for this field already exists."
+            );
+        }
         
         let newAvailability = new Availabilities({ 
-            tenant_id:body.tenant_id,
-            field_id:body.field_id,
-            weekday:body.weekday,
+            tenant_id: body.tenant_id,
+            field_id: body.field_id,
+            weekday: body.weekday,
             start_time: body.start_time,
             end_time: body.end_time,
-            is_active:true,
+            is_active: true,
             created_by: req.user?.id
         });
 
-      
         await newAvailability.save();
 
-        res.json(Response.successResponse({success: true}));
+        
+        res.status(HTTP_CODES.CREATED).json(
+            Response.successResponse({
+                success: true,
+                _id: newAvailability._id
+            })
+        );
+
     } catch(err) {
-          let errorResponse = Response.errorResponse(err);
-          res.status(errorResponse.code).json(errorResponse);
+        let errorResponse = Response.errorResponse(err);
+        res.status(errorResponse.code).json(errorResponse);
     }
-     
 });
+
 
 
 router.post("/update", async (req, res) => {
