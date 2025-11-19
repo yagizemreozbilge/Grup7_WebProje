@@ -28,21 +28,34 @@ const schema = mongoose.Schema({
   
   latitude:       { 
     type: Number, 
-    required: true 
+    default: 0
 },
   longitude:      { 
     type: Number, 
-    required: true
+    default: 0
  },
 
   address:        { 
     type: String, 
     trim: true 
 },
+  city:           {
+    type: String,
+    trim: true
+  },
   is_active:      { 
     type: Boolean, 
     default: true 
-}
+  },
+  approval_status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+  deleted_at: {
+    type: Date,
+    default: null
+  }
 }, {
   versionKey: false,
   timestamps: { 

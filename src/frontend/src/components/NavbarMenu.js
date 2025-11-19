@@ -3,24 +3,43 @@
 import React from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
+import {
+    clearStoredAuth,
+    getStoredAuth,
+    hasPermission
+} from '../utils/auth';
 
-// !!! BURAYA KENDİ SAHA SAHİBİ ID'Nİ YAPIŞTIR !!!
-const TENANT_ROLE_ID = '691cb77d0669223adc742b83'; 
+const TENANT_KEYWORDS = ['saha', 'tenant'];
+const SUPER_ADMIN_KEYWORDS = ['süper', 'super'];
+
+const hasTenantBadge = (roleDetails = []) =>
+    roleDetails.some((role) => {
+        const name = role.name?.toLowerCase() || '';
+        return TENANT_KEYWORDS.some((keyword) => name.includes(keyword));
+    });
+
+const isSuperAdminRole = (roleDetails = []) =>
+    roleDetails.some((role) => {
+        const name = role.name?.toLowerCase() || '';
+        return SUPER_ADMIN_KEYWORDS.some((keyword) => name.includes(keyword));
+    });
 
 function NavbarMenu() {
-    // Kullanıcı verisini çek ve ayrıştır
-    const userInfoStorage = localStorage.getItem('userInfo'); 
-    const userInfo = userInfoStorage ? JSON.parse(userInfoStorage) : null;
-    
-    // Kullanıcı objesine ulaş (Bazen user içinde, bazen direkt gelir)
-    const user = userInfo ? (userInfo.user || userInfo) : null;
-    const isAuthenticated = !!user;
+    const auth = getStoredAuth();
+    const user = auth?.user;
+    const isAuthenticated = Boolean(user);
 
-    // Saha Sahibi mi kontrolü
-    const isTenant = user && user.roles && user.roles.includes(TENANT_ROLE_ID);
+    const roleDetails = Array.isArray(user?.role_details) ? user.role_details : [];
+    const isTenant = hasTenantBadge(roleDetails);
+    const isSuperAdmin =
+        hasPermission(user, ['superuser']) ||
+        isSuperAdminRole(roleDetails);
+    const canManageFields =
+        hasPermission(user, ['fields_add']) ||
+        isTenant;
 
     const logoutHandler = () => {
-        localStorage.removeItem('userInfo');
+        clearStoredAuth();
         window.location.href = '/'; 
     };
 
@@ -55,34 +74,49 @@ function NavbarMenu() {
                         <Nav className="ms-auto align-items-center">
                             
                             <LinkContainer to="/sahalar">
-                                <Nav.Link className="mx-2 fw-medium text-white-50">SAHALAR</Nav.Link>
+                                <Nav.Link className="mx-2 fw-medium text-white">SAHALAR</Nav.Link>
                             </LinkContainer>
 
                             {isAuthenticated ? (
                                 <>
                                     {/* --- BİZİM EKLEDİĞİMİZ SAHA EKLE BUTONU (Geri Geldi!) --- */}
-                                    {isTenant && (
+                                    {canManageFields && (
                                         <LinkContainer to="/saha-ekle">
-                                            <Nav.Link className="mx-2 fw-bold text-warning">
-                                                + SAHA EKLE
+                                            <Nav.Link className="mx-2 fw-bold text-white">
+                                                SAHA EKLE
                                             </Nav.Link>
                                         </LinkContainer>
                                     )}
 
                                     <LinkContainer to="/panel">
-                                        <Nav.Link className="mx-2 fw-bold text-white border-end pe-3">
+                                        <Nav.Link className="mx-2 fw-bold text-white">
                                             PANELİM
                                         </Nav.Link>
                                     </LinkContainer>
+
+                                    {isSuperAdmin && (
+                                        <>
+                                            <LinkContainer to="/saha-talepleri">
+                                                <Nav.Link className="mx-2 fw-bold text-white">
+                                                    SAHA TALEPLERİ
+                                                </Nav.Link>
+                                            </LinkContainer>
+                                            <LinkContainer to="/admin">
+                                                <Nav.Link className="mx-2 fw-bold text-white">
+                                                    KULLANICI YÖNETİMİ
+                                                </Nav.Link>
+                                            </LinkContainer>
+                                        </>
+                                    )}
                                     
-                                    <Nav.Link onClick={logoutHandler} className="mx-2 fw-bold text-danger">
+                                    <Nav.Link onClick={logoutHandler} className="mx-2 fw-bold text-white">
                                         ÇIKIŞ YAP
                                     </Nav.Link>
                                 </>
                             ) : (
                                 <>
                                     <LinkContainer to="/giris-yap">
-                                        <Nav.Link className="mx-2 fw-medium text-white-50">GİRİŞ YAP</Nav.Link>
+                                        <Nav.Link className="mx-2 fw-medium text-white">GİRİŞ YAP</Nav.Link>
                                     </LinkContainer>
                                     <LinkContainer to="/kayit-ol">
                                         <Nav.Link className="mx-2 fw-medium">

@@ -25,7 +25,8 @@ const privs = require('../config/role_privileges');
 
 
 router.use((req, res, next) => {
-    if (req.path === '/register' || req.path === '/auth') {
+    const openPaths = ['/register', '/auth', '/role-options'];
+    if (openPaths.includes(req.path)) {
         return next();
     }
     auth.authenticate()(req, res, next);
@@ -88,6 +89,17 @@ router.post("/register", async(req,res) => {
 });
 
 
+router.get("/role-options", async (req, res) => {
+  try {
+    const roles = await Roles.find({ is_active: true }).select("_id role_name is_active");
+    res.json(Response.successResponse(roles));
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    return res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+
 router.post("/auth", async (req, res) => {
   try {
     let { email, password } = req.body;
@@ -99,17 +111,23 @@ router.post("/auth", async (req, res) => {
     let user = await Users.findOne({ email });
 
     if (!user)
-      throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
+      throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email veya şifre hatalı");
 
     if (typeof user.validPassword !== "function") {
       user.validPassword = (pass) => bcrypt.compareSync(pass, user.password);
     }
 
     if (!user.validPassword(password))
-      throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email or password wrong");
+      throw new CustomError(Enum.HTTP_CODES.UNAUTHORIZED, "Validation Error", "Email veya şifre hatalı");
 
   
     let userRoles = await UserRoles.find({ user_id: user._id });
+    let roleIds = userRoles.map(r => r.role_id.toString());
+    let roleDocs = roleIds.length > 0 ? await Roles.find({ _id: { $in: roleIds } }) : [];
+    let roleDetails = roleDocs.map(r => ({
+      id: r._id.toString(),
+      name: r.role_name
+    }));
 
    
     let rolePrivileges = await RolePrivileges.find({
@@ -123,6 +141,8 @@ router.post("/auth", async (req, res) => {
     let payload = {
       id: user._id.toString(),
       roles: permissions,
+      role_ids: roleIds,
+      role_details: roleDetails,
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
@@ -139,7 +159,9 @@ router.post("/auth", async (req, res) => {
       last_name: user.last_name,
       email: user.email,
       phone_number: user.phone_number,
-      roles: permissions
+      roles: permissions,
+      role_ids: roleIds,
+      role_details: roleDetails
     };
 
     res.json(Response.successResponse({ token, user: userData }));

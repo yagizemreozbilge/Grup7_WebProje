@@ -1,9 +1,9 @@
 // src/pages/KayitOl.js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Form, Button, Row, Col, Alert, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 
 // 1. ROLLERİN KİMLİK KARTLARI (ID'LER)
 const ROLE_IDS = {
@@ -12,7 +12,11 @@ const ROLE_IDS = {
   tenant: '691cb77d0669223adc742b83' // Saha Sahibi ID
 };
 
-const API_BASE_URL = 'http://localhost:5000';
+const ROLE_KEYWORDS = {
+  player: ['müşteri', 'oyuncu', 'player'],
+  tenant: ['saha', 'tenant'],
+};
+
 // GÖRSELİ DEĞİŞTİRMEDİM, sadece tema rengini (kırmızıdan laciverte) değiştireceğiz.
 const registerImageUrl = 'https://images.unsplash.com/photo-1549477545-fb405362145b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
 
@@ -26,12 +30,39 @@ function KayitOl() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedRole, setSelectedRole] = useState('player'); 
+  const [availableRoles, setAvailableRoles] = useState([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const { data } = await apiClient.get('/users/role-options');
+        const payload = data.data ? data.data : data;
+        setAvailableRoles(Array.isArray(payload) ? payload : []);
+      } catch (fetchErr) {
+        console.error('Rol listesi alınamadı:', fetchErr);
+      } finally {
+        setRolesLoading(false);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  const resolveRoleId = (type) => {
+    const keywords = ROLE_KEYWORDS[type] || [];
+    const match = availableRoles.find((role) => {
+      const name = role.role_name?.toLowerCase() || '';
+      return keywords.some((keyword) => name.includes(keyword));
+    });
+    return match?._id;
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -56,19 +87,30 @@ function KayitOl() {
       };
 
       // Seçilen rolün ID'sini alıyoruz
-      const roleIdToSend = ROLE_IDS[selectedRole];
+      const playerRoleId = resolveRoleId('player') || ROLE_IDS.player;
+      const tenantRoleId = resolveRoleId('tenant') || ROLE_IDS.tenant;
+
+      if (selectedRole === 'tenant' && !tenantRoleId) {
+        setLoading(false);
+        setMessage('Saha sahibi rolü sistemde tanımlı olmadığı için hesap oluşturulamıyor. Lütfen yöneticiyle iletişime geçin.');
+        return;
+      }
+
+      const rolesToSend = selectedRole === 'tenant'
+        ? [playerRoleId, tenantRoleId].filter(Boolean)
+        : [playerRoleId].filter(Boolean);
 
      
 
-      const { data } = await axios.post(
-        `${API_BASE_URL}/users/register`,
+      const { data } = await apiClient.post(
+        '/users/register',
         { 
           email: email, 
           password: password,
           first_name: firstName,
           last_name: lastName,
           phone_number: phoneNumber,
-          roles: [ roleIdToSend ]
+          roles: rolesToSend
         },
         config
       );
@@ -79,10 +121,23 @@ function KayitOl() {
       
     } catch (err) {
       setLoading(false);
-      const errorMsg = err.response && err.response.data.error 
-          ? err.response.data.error.description 
-          : err.message;
-      setError('Kayıt Hatası: ' + errorMsg);
+      let errorMsg = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+      
+      console.log('Registration Error:', err);
+      console.log('Error Response:', err.response?.data);
+      
+      if (err.response && err.response.data) {
+        if (err.response.data.error) {
+          // Backend'den gelen açıklayıcı mesajı kullan
+          errorMsg = err.response.data.error.description || err.response.data.error.message || errorMsg;
+        } else if (err.response.data.message) {
+          errorMsg = err.response.data.message;
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      
+      setError(errorMsg);
     }
   };
 
@@ -180,7 +235,7 @@ function KayitOl() {
                 <Form.Control type="password" placeholder="Şifreyi tekrar girin" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} size="lg" className="border-0 border-bottom bg-light rounded-0" />
               </Form.Group>
 
-              <Button type="submit" variant="primary" className="w-100 fw-bold py-3" disabled={loading}>
+      <Button type="submit" variant="primary" className="w-100 fw-bold py-3" disabled={loading || rolesLoading}>
                 Kayıt Ol
               </Button>
             </Form>

@@ -15,6 +15,7 @@ import KullaniciPanel from './pages/KullaniciPanel';
 import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import SahaEkle from './pages/SahaEkle';
+import SahaTalepleri from './pages/SahaTalepleri';
 
 function App() {
   return (
@@ -28,10 +29,28 @@ function App() {
             <Route path="/giris-yap" element={<GirisYap />} />
             <Route path="/kayit-ol" element={<KayitOl />} />
             <Route path="/sahalar" element={<SahaListeleme />} />
-            <Route path="/saha-ekle" element={<SahaEkle />} />
+            <Route path="/saha-ekle" element={
+              <ProtectedRoute
+                requiredPermissions={['fields_add']}
+                allowedRoleKeywords={['saha', 'tenant']}
+              >
+                <SahaEkle />
+              </ProtectedRoute>
+            } />
             
             {/* DÜZELTME: Tek Admin Rotası */}
-            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin" element={
+              <ProtectedRoute requiredPermissions={['users_view']}>
+                <AdminPanel />
+              </ProtectedRoute>
+            } />
+
+            {/* Saha Talepleri - Sadece Super Admin */}
+            <Route path="/saha-talepleri" element={
+              <ProtectedRoute>
+                <SahaTalepleri />
+              </ProtectedRoute>
+            } />
 
             <Route path="/saha/:id" element={<SahaDetay />} />
 
