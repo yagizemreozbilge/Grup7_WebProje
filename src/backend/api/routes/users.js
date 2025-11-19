@@ -154,15 +154,24 @@ router.all("*", auth.authenticate(), (req, res, next) => next());
 
 
 
-router.get("/", auth.checkRoles("users_view"),async (req, res) => {
+router.get("/", auth.checkRoles("users_view"), async (req, res) => {
   try {
-    let users = await Users.find({});
-    res.json(Response.successResponse(users))
-  } catch(err) {
-     let errorResponse = Response.errorResponse(err);
-return res.status(errorResponse.code).json(errorResponse);
+    let users = await Users.find({})
+      .populate({
+        path: "roles",
+        populate: {
+          path: "role_id",
+          model: "roles"
+        }
+      });
+
+    res.json(Response.successResponse(users));
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    return res.status(errorResponse.code).json(errorResponse);
   }
 });
+
 
 
 
