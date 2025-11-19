@@ -174,12 +174,12 @@ function SahaDetay() {
                     {/* Durum Mesajları */}
                     {rezervasyonDurumu === 'success' ? (
                         <Alert variant="success" className="text-center">
-                            🎉 <strong>İşlem Başarılı!</strong><br/>
+                             <strong>İşlem Başarılı!</strong><br/>
                             Rezervasyonunuz alındı. Profilinize yönlendiriliyorsunuz...
                         </Alert>
                     ) : rezervasyonDurumu === 'error' ? (
                         <Alert variant="danger" className="text-center">
-                            ❌ <strong>Hata!</strong><br/>
+                            <strong>Hata!</strong><br/>
                             Rezervasyon oluşturulamadı. Lütfen tekrar deneyin.
                         </Alert>
                     ) : (

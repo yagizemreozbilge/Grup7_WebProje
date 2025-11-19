@@ -12,7 +12,6 @@ function SahaListeleme() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // URL'deki bilgileri okumak için (örn: ?city=Trabzon)
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,22 +21,18 @@ function SahaListeleme() {
         setLoading(true);
         setError(null);
 
-        // 1. URL'den aranan kriterleri çekiyoruz
         const searchParams = new URLSearchParams(location.search);
         const arananSehir = searchParams.get('city');
         const arananIlce = searchParams.get('district');
 
-        // 2. Veritabanındaki TÜM sahaları çekiyoruz
+        // DÜZELTME: Backtick kullanıldı
         const { data } = await axios.get(`${API_BASE_URL}/fields`);
         
-        // Backend bazen {data: [...]} bazen direkt [...] dönebilir, onu ayarlıyoruz
         let gelenVeri = data.data ? data.data : data;
 
-        // --- 3. FİLTRELEME MANTIĞI (Kalbin Burası) ---
-        
+        // FİLTRELEME
         if (arananSehir) {
           gelenVeri = gelenVeri.filter(saha => 
-            // Sahanın şehir bilgisini kontrol et. Büyük/küçük harf duyarlılığını kaldır (toLowerCase)
             (saha.city && saha.city.toLowerCase() === arananSehir.toLowerCase()) ||
             (saha.address && saha.address.toLowerCase().includes(arananSehir.toLowerCase()))
           );
@@ -50,7 +45,6 @@ function SahaListeleme() {
           );
         }
 
-        // Filtrelenmiş veriyi kaydet
         setSahalar(gelenVeri);
         setLoading(false);
 
@@ -61,9 +55,8 @@ function SahaListeleme() {
     };
 
     fetchSahalar();
-  }, [location.search]); // URL her değiştiğinde bu kod tekrar çalışır
+  }, [location.search]);
 
-  // Yeni arama yapmak için temizleme fonksiyonu
   const filtreleriTemizle = () => {
     navigate('/sahalar');
   };
@@ -72,7 +65,6 @@ function SahaListeleme() {
     <Container>
       <div className="d-flex justify-content-between align-items-center my-4">
         <h1>Halı Sahalar</h1>
-        {/* Eğer filtre varsa "Tümünü Göster" butonu çıkar */}
         {location.search && (
           <Button variant="outline-secondary" onClick={filtreleriTemizle}>
             Filtreleri Temizle / Tümünü Göster
@@ -80,7 +72,6 @@ function SahaListeleme() {
         )}
       </div>
       
-      {/* --- SONUÇ YOKSA UYARI VEREN KISIM --- */}
       {!loading && sahalar.length === 0 && (
          <Alert variant="warning" className="text-center p-5">
             <h4><i className="bi bi-exclamation-triangle"></i> Üzgünüz, aradığınız kriterlere uygun saha bulunamadı.</h4>
@@ -116,6 +107,7 @@ function SahaListeleme() {
                 
                 <Card.Body className="d-flex flex-column px-0">
                   <Card.Title as="div" className="mb-2">
+                    {/* DÜZELTME: Link backtick ile düzeltildi */}
                     <Link to={`/saha/${saha._id}`} style={{ textDecoration: 'none', color: '#2c3e50', fontSize: '1.1rem' }}>
                       <strong>{saha.name}</strong>
                     </Link>
@@ -126,9 +118,11 @@ function SahaListeleme() {
                   </Card.Text>
                   
                   <Card.Text as="div" className="mt-auto text-muted small">
+                    {/* DÜZELTME: Backtick ile düzeltildi */}
                     📍 {saha.city ? `${saha.city} / ${saha.district}` : saha.address}
                   </Card.Text>
 
+                  {/* DÜZELTME: Link backtick ile düzeltildi */}
                   <Link to={`/saha/${saha._id}`} className="btn btn-primary mt-3 w-100 fw-bold">
                     İncele & Kirala
                   </Link>

@@ -1,7 +1,7 @@
 // src/pages/AdminPanel.js
 
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Badge, Button, Spinner, Alert } from 'react-bootstrap';
+import { Container, Table, Badge, Spinner, Alert } from 'react-bootstrap'; // Button çıkartıldı (Uyarıyı silmek için)
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000';
@@ -19,25 +19,22 @@ function AdminPanel() {
     try {
       setLoading(true);
 
-      // 1. HAFIZADAN TOKEN'I AL
       const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      const token = userInfo.token; // <-- Giriş yaparken gelen token
+      const token = userInfo.token; 
 
-      // 2. TOKEN YOKSA HATA VER (VEYA LOGİNE AT)
       if (!token) {
           setError('Yetkisiz erişim! Lütfen giriş yapın.');
           setLoading(false);
           return;
       }
 
-      // 3. İSTEĞE TOKEN'I EKLE (Header'a koyuyoruz)
       const config = {
           headers: {
-              Authorization: token // Backend bazen 'Bearer ' + token ister, önce böyle dene
+              // DÜZELTME: Bearer eklendi
+              Authorization: `Bearer ${token}` 
           }
       };
 
-      // 4. İSTEĞİ KONFİGÜRASYONLA BERABER YOLLA
       const { data } = await axios.get(`${API_BASE_URL}/users`, config);
       
       if (data.data) {
@@ -49,7 +46,6 @@ function AdminPanel() {
 
     } catch (err) {
       setLoading(false);
-      // Hata mesajını yakala
       const msg = err.response && err.response.data.error ? err.response.data.error.message : err.message;
       setError('Kullanıcılar yüklenirken hata: ' + msg);
     }
