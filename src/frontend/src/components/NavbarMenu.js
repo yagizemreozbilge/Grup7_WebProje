@@ -28,7 +28,7 @@ function NavbarMenu() {
         <header>
             <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className="shadow-lg sticky-top py-3">
                 <Container>
-                    {/* --- FATIMA'NIN GÜZEL LOGO TASARIMI --- */}
+                    
                     <LinkContainer to="/">
                         <Navbar.Brand 
                             className="d-flex align-items-center fw-bold fs-4" 
