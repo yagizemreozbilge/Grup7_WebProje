@@ -1,86 +1,82 @@
-// src/components/NavbarMenu.js
-
 import React from 'react';
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-
-// !!! BURAYA KENDİ 'TENANT' (SAHA SAHİBİ) ID'Nİ YAPIŞTIR !!!
-const TENANT_ROLE_ID = '691cb77d0669223adc742b83'; 
+import { Navbar, Nav, Container, Button } from 'react-bootstrap';
 
 function NavbarMenu() {
-  const userInfoStorage = localStorage.getItem('userInfo');
-  const userInfo = userInfoStorage ? JSON.parse(userInfoStorage) : null;
-  const user = userInfo ? (userInfo.user || userInfo) : null;
+    const userInfo = localStorage.getItem('userInfo'); 
+    const isAuthenticated = !!userInfo;
 
-  // Kullanıcının Saha Sahibi olup olmadığını kontrol et
-  // (Backend'den 'roles' dizisi gelince çalışır)
-  const isTenant = user && user.roles && user.roles.includes(TENANT_ROLE_ID);
+    const logoutHandler = () => {
+        localStorage.removeItem('userInfo');
+        window.location.href = '/'; 
+    };
 
-  const logoutHandler = () => {
-    localStorage.removeItem('userInfo');
-    window.location.href = '/giris-yap';
-  };
-
-  return (
-    <Navbar bg="dark" variant="dark" expand="lg">
-      <Container>
-        <LinkContainer to="/">
-          <Navbar.Brand>HalıSahaMax</Navbar.Brand>
-        </LinkContainer>
-        
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          
-          <Nav className="ms-auto">
-            
-            <LinkContainer to="/sahalar">
-              <Nav.Link>Sahalar</Nav.Link>
-            </LinkContainer>
-
-            {/* SAHA EKLE BUTONU (Sadece Saha Sahiplerine Özel) */}
-            {isTenant && (
-                <LinkContainer to="/saha-ekle">
-                    <Nav.Link className="text-warning fw-bold">+ Saha Ekle</Nav.Link>
-                </LinkContainer>
-            )}
-
-            {user ? (
-              <NavDropdown title={`Merhaba, ${user.first_name || 'Kullanıcı'}`} id="username">
-                
-                <LinkContainer to="/panel">
-                  <NavDropdown.Item>Profilim</NavDropdown.Item>
-                </LinkContainer>
-
-                {/* Dropdown içinde de gösterelim */}
-                {isTenant && (
-                    <LinkContainer to="/saha-ekle">
-                        <NavDropdown.Item>Saha Ekle</NavDropdown.Item>
+    return (
+        <header>
+            <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect className="shadow-lg sticky-top py-3">
+                <Container>
+                    {/* MARKA/LOGO ALANI - HALISAHA MAX YAZISI KALE İÇİNDE */}
+                    <LinkContainer to="/">
+                        <Navbar.Brand 
+                            className="d-flex align-items-center fw-bold fs-4" 
+                            style={{ letterSpacing: '1px', textTransform: 'uppercase' }} // Metni büyük harf yap
+                        >
+                            <span 
+                                style={{
+                                    border: '2px solid white', // Kale direkleri için kenarlık
+                                    padding: '5px 10px',      // Metinle kenarlık arası boşluk
+                                    borderRadius: '3px',      // Köşeleri hafif yuvarla
+                                    display: 'inline-flex',   // İçindeki elemanları hizalamak için
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(255,255,255,0.1)' // Hafif şeffaf arka plan
+                                }}
+                            >
+                                <span className="text-white">HalıSaha</span>
+                                <span className="text-success ms-1">Max</span> {/* ms-1 ile hafif boşluk */}
+                            </span>
+                        </Navbar.Brand>
                     </LinkContainer>
-                )}
-                
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={logoutHandler}>
-                  Çıkış Yap
-                </NavDropdown.Item>
 
-              </NavDropdown>
-            ) : (
-              <>
-                <LinkContainer to="/giris-yap">
-                  <Nav.Link>Giriş Yap</Nav.Link>
-                </LinkContainer>
-                
-                <LinkContainer to="/kayit-ol">
-                  <Nav.Link>Kayıt Ol</Nav.Link>
-                </LinkContainer>
-              </>
-            )}
-            
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <Nav className="ms-auto align-items-center">
+                            
+                            <LinkContainer to="/sahalar">
+                                <Nav.Link className="mx-2 fw-medium text-white-50">SAHALAR</Nav.Link>
+                            </LinkContainer>
+
+                            {isAuthenticated ? (
+                                <>
+                                    <LinkContainer to="/panel">
+                                        <Nav.Link className="mx-2 fw-bold text-warning border-end pe-3">
+                                            PANELİM
+                                        </Nav.Link>
+                                    </LinkContainer>
+                                    <Nav.Link onClick={logoutHandler} className="mx-2 fw-bold text-danger">
+                                        ÇIKIŞ YAP
+                                    </Nav.Link>
+                                </>
+                            ) : (
+                                <>
+                                    <LinkContainer to="/giris-yap">
+                                        <Nav.Link className="mx-2 fw-medium text-white-50">GİRİŞ YAP</Nav.Link>
+                                    </LinkContainer>
+                                    <LinkContainer to="/kayit-ol">
+                                        <Nav.Link className="mx-2 fw-medium">
+                                            <Button variant="success" size="sm" className="fw-bold px-3">
+                                                KAYIT OL
+                                            </Button>
+                                        </Nav.Link>
+                                    </LinkContainer>
+                                </>
+                            )}
+
+                        </Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        </header>
+    );
 }
 
 export default NavbarMenu;
