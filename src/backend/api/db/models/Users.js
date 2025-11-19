@@ -19,13 +19,11 @@ const schema = mongoose.Schema({
     }
 });
 
-
 schema.virtual("roles", {
     ref: "user_roles",
     localField: "_id",
     foreignField: "user_id"
 });
-
 
 schema.set("toJSON", { virtuals: true });
 schema.set("toObject", { virtuals: true });
@@ -39,7 +37,7 @@ class Users extends mongoose.Model {
     validateFieldsBeforeAuth(email, password) {
         if (
             typeof password !== "string" ||
-            password.length < PASS_LENGTH ||
+            password.length < PASS_LENGTH.MIN ||
             !validator.isEmail(email)
         ) {
             throw new CustomError(
@@ -50,11 +48,9 @@ class Users extends mongoose.Model {
         }
         return null;
     }
-
 }
 
 schema.index({ email: 1 }, { unique: true });
 schema.loadClass(Users);
 
 module.exports = mongoose.model("users", schema);
-

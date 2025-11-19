@@ -18,7 +18,7 @@ const { HTTP_CODES } = require('../config/Enum');
 const config = require("../config");
 const auth = require('../lib/logger/auth')();
 
-
+const DEFAULT_PLAYER_ROLE_ID = "691afa1e97ba5acd7a24deb9";
 
 const RolePrivileges = require('../db/models/RolePrivileges');
 const privs = require('../config/role_privileges');
@@ -52,7 +52,7 @@ router.post("/register", async(req,res) => {
 
 
     if (!body.roles || !Array.isArray(body.roles) || body.roles.length === 0) {
-      body.roles = req.body;
+      body.roles = [DEFAULT_PLAYER_ROLE_ID];
     }
 
     let roles = await Roles.find({ _id: { $in: body.roles } });
@@ -154,24 +154,15 @@ router.all("*", auth.authenticate(), (req, res, next) => next());
 
 
 
-router.get("/", auth.checkRoles("users_view"), async (req, res) => {
+router.get("/", auth.checkRoles("users_view"),async (req, res) => {
   try {
-    let users = await Users.find({})
-      .populate({
-        path: "roles",
-        populate: {
-          path: "role_id",
-          model: "roles"
-        }
-      });
-
-    res.json(Response.successResponse(users));
-  } catch (err) {
-    let errorResponse = Response.errorResponse(err);
-    return res.status(errorResponse.code).json(errorResponse);
+    let users = await Users.find({});
+    res.json(Response.successResponse(users))
+  } catch(err) {
+     let errorResponse = Response.errorResponse(err);
+return res.status(errorResponse.code).json(errorResponse);
   }
 });
-
 
 
 
