@@ -1,3 +1,4 @@
+// role_privileges.js 
 module.exports = {
     privGroups: [{
             id: "USERS",
@@ -15,7 +16,6 @@ module.exports = {
             id: "AUDITLOGS",
             name: "AuditLogs Permissions"
         },
-
         {
             id: "TENANTS",
             name: "Tenant Permissions"
@@ -58,7 +58,14 @@ module.exports = {
             group: "USERS",
             description: "Users delete"
         },
-        
+
+       
+        {
+            key: "roles_view",
+            name: "Roles View",
+            group: "ROLES",
+            description: "Roles view"
+        },
         {
             key: "roles_add",
             name: "Roles Add",
@@ -78,12 +85,29 @@ module.exports = {
             description: "Roles delete"
         },
 
+        
+        {
+            key: "availabilities_manage",
+            name: "Availabilities Manage",
+            group: "AVAILABILITIES",
+            description: "Allows managing field availabilities."
+        },
+
         {
             key: "auditlogs_view",
             name: "AuditLogs View",
             group: "AUDITLOGS",
             description: "AuditLogs View"
         },
+
+        
+        {
+            key: "superuser",
+            name: "Superuser (Full Access)",
+            group: "ADMINS",
+            description: "Grants full access to all features (used by middleware)."
+        },
+        
         {
             key: "fields_view",
             name: "Fields View",
@@ -108,6 +132,8 @@ module.exports = {
             group: "FIELDS",
             description: "Fields delete"
         },
+
+       
         {
             key: "reservations_view",
             name: "Reservations View",
@@ -131,6 +157,12 @@ module.exports = {
             name: "Reservations Delete",
             group: "RESERVATIONS",
             description: "Reservations delete"
+        },
+        {
+            key: "reservations_approve",
+            name: "Reservations Approve/Reject",
+            group: "RESERVATIONS",
+            description: "Allows approval or rejection of reservations."
         }
     ]
 }

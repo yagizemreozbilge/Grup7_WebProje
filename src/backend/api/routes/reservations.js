@@ -27,34 +27,51 @@ router.get('/', async(req, res) => {
 router.post("/add", async(req, res) => {
      let body = req.body;
     try {
+
+        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+        if(!body.start) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "start field must be filled");
+        if(!body.end) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "end field must be filled");
+
        
-        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id fields must be fiiled");
-        if(!body.start) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "start fields must be fiiled");
-        if(!body.end) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "end fields must be fiiled");
-        
-        
+        let exists = await Reservations.findOne({
+            tenant_id: body.tenant_id,
+            field_id: body.field_id,
+            start: body.start,
+            end: body.end
+        });
+
+        if (exists) {
+            throw new CustomError(
+                Enum.HTTP_CODES.CONFLICT,
+                "Already Exists!",
+                "This reservation already exists."
+            );
+        }
+
         let newReservation = new Reservations({
-            tenant_id:body.tenant_id,
-            field_id:body.field_id,
-            customer_id:body.customer_id,
-            start:body.start,
-            end:body.end,
-            price:body.price,
-            status:body.status,
-            is_active:true,
+            tenant_id: body.tenant_id,
+            field_id: body.field_id,
+            customer_id: body.customer_id,
+            start: body.start,
+            end: body.end,
+            price: body.price,
+            status: body.status,
+            is_active: true,
             created_by: req.user?.id
         });
 
-        
         await newReservation.save();
 
-        res.json(Response.successResponse({success: true}));
+        res.status(HTTP_CODES.CREATED).json(
+            Response.successResponse({ success: true })
+        );
+
     } catch(err) {
         let errorResponse = Response.errorResponse(err);
         res.status(errorResponse.code).json(errorResponse);
     }
-     
 });
+
 
 /* GET Rezervasyon Guncellenme. */
 router.post("/update", async (req, res) => {
