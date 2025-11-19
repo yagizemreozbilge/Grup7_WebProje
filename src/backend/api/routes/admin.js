@@ -8,9 +8,12 @@ const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
 const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require("../config/Enum");
+const auth = require('../lib/logger/auth')();
+
+router.use(auth.initialize(), auth.authenticate());
 
 /* GET Admin Listeleme. */
-router.get('/', async(req, res) => {
+router.get('/', auth.checkRoles("admins_view"),async(req, res) => {
     try {
         let admins = await Admin.find({});
 
@@ -22,7 +25,7 @@ router.get('/', async(req, res) => {
 });
 
 /* Admin Ekleme. */
-router.post('/add', async(req, res) => {
+router.post('/add', auth.checkRoles("admins_add"),async(req, res) => {
     let body = req.body;
     try {
 
@@ -82,7 +85,7 @@ router.post('/add', async(req, res) => {
 
 
 /* Admin Güncelleme. */
-router.post('/update', async(req, res) => {
+router.post('/update', auth.checkRoles("admins_update"),async(req, res) => {
     let body = req.body;
     try {
         if (!body._id)
@@ -101,9 +104,10 @@ router.post('/update', async(req, res) => {
         if (body.role) updates.role = body.role;
         if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-        if (body.password) {
-            updates.password = body.password; 
-        }
+        if (body.password && body.password.trim().length > 0) {
+    updates.password = body.password;
+    }
+ 
 
         let admin = await Admin.findOne({ _id: body._id });
         if (!admin) {
@@ -133,7 +137,7 @@ router.post('/update', async(req, res) => {
 });
 
 /* Admin Silme. */
-router.post('/delete', async(req, res) => {
+router.post('/delete', auth.checkRoles("admins_delete"),async(req, res) => {
     let body = req.body;
     try {
         if (!body._id)

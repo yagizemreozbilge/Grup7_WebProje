@@ -163,6 +163,108 @@ module.exports = {
             name: "Reservations Approve/Reject",
             group: "RESERVATIONS",
             description: "Allows approval or rejection of reservations."
-        }
+        },
+
+        {
+            key: "tenants_view",
+            name: "Tenants View",
+            group: "TENANTS",
+            description: "Tenants view"
+        },
+        {
+            key: "tenants_add",
+            name: "Tenants Add",
+            group: "TENANTS",
+            description: "Tenants add"
+        },
+        {
+            key: "tenants_update",
+            name: "Tenants Update",
+            group: "TENANTS",
+            description: "Tenants update"
+        },
+        {
+            key: "tenants_delete",
+            name: "Tenants Delete",
+            group: "TENANTS",
+            description: "Tenants delete"
+        },
+
+        {
+            key: "availabilities_view",
+            name: "Availabilities View",
+            group: "AVAILABILITIES",
+            description: "Availabilities view"
+        },
+        {
+             key: "availabilities_add",
+            name: "Availabilities Add",
+            group: "AVAILABILITIES",
+            description: "Availabilities add"
+        },
+        {
+             key: "availabilities_update",
+            name: "Availabilities Update",
+            group: "AVAILABILITIES",
+            description: "Availabilities update"
+        },
+        {
+             key: "availabilities_delete",
+            name: "Availabilities Delete",
+            group: "AVAILABILITIES",
+            description: "Availabilities delete"
+        },
+
+        {
+            key: "customers_view",
+            name: "Customers View",
+            group: "CUSTOMERS",
+            description: "Customers view"
+        },
+        {
+             key: "customers_add",
+            name: "Availabilities Add",
+            group: "CUSTOMERS",
+            description: "Customers add"
+        },
+        {
+             key: "customers_update",
+            name: "Availabilities Update",
+            group: "CUSTOMERS",
+            description: "Customers update"
+        },
+        {
+             key: "customers_delete",
+            name: "Availabilities Delete",
+            group: "CUSTOMERS",
+            description: "Customers delete"
+        },
+
+        {
+            key: "admins_view",
+            name: "Admins View",
+            group: "ADMINS",
+            description: "Admins view"
+        },
+        {
+             key: "admins_add",
+            name: "Availabilities Add",
+            group: "ADMINS",
+            description: "Admins add"
+        },
+        {
+             key: "admins_update",
+            name: "Availabilities Update",
+            group: "ADMINS",
+            description: "Admins update"
+        },
+        {
+             key: "admins_delete",
+            name: "Availabilities Delete",
+            group: "ADMINS",
+            description: "Admins delete"
+        },
+
+        
     ]
 }

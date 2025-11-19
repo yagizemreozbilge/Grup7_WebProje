@@ -7,9 +7,12 @@ const Enum = require("../config/Enum");
 const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require('../config/Enum');
 
+const auth = require('../lib/logger/auth')();
 
+
+router.use(auth.initialize(), auth.authenticate());
 /* Musteri Listeleme */
-router.get('/', async(req, res) => {
+router.get('/', auth.checkRoles("customers_view"),async(req, res) => {
     try {
         let customers = await Customers.find({});
         res.json(Response.successResponse(customers));
@@ -20,7 +23,7 @@ router.get('/', async(req, res) => {
 });
 
 /* Musteri Ekleme */
-router.post("/add", async(req, res) => {
+router.post("/add", auth.checkRoles("customers_add"),async(req, res) => {
     let body = req.body;
     try {
 
@@ -74,7 +77,7 @@ router.post("/add", async(req, res) => {
 
 
 /* Musteri Guncelleme */
-router.post("/update", async (req, res) => {
+router.post("/update", auth.checkRoles("customers_update"),async (req, res) => {
     let body = req.body;
     try {
         if (!body._id) throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
@@ -90,7 +93,10 @@ router.post("/update", async (req, res) => {
         if (typeof body.is_guest === "boolean") updates.is_guest = body.is_guest;
         
         
-        if (body.password) updates.password = body.password; 
+        if (body.password) {
+            const salt = await bcrypt.genSalt(10);
+            updates.password = await bcrypt.hash(body.password, salt);
+        }
         await Customers.updateOne({ _id: body._id }, updates); 
 
         
@@ -103,7 +109,7 @@ router.post("/update", async (req, res) => {
 });
 
 /* Musteri Silme */
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth.checkRoles("customers_delete"),async (req, res) => {
     let body = req.body;
     try {
         if (!body._id) throw new CustomError(HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");

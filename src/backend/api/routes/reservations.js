@@ -7,9 +7,10 @@ const Enum = require("../config/Enum");
 const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require('../config/Enum');
 
-
+const auth = require('../lib/logger/auth')();
+router.use(auth.initialize(), auth.authenticate());
 /* GET Rezervasyon Listeleme. */
-router.get('/', async(req, res) => {
+router.get('/', auth.checkRoles("reservations_view"),async(req, res) => {
 
     try {
         let reservations = await Reservations.find({});
@@ -24,7 +25,7 @@ router.get('/', async(req, res) => {
 });
 
 /* GET Rezervasyon Ekleme. */
-router.post("/add", async(req, res) => {
+router.post("/add",auth.checkRoles("reservations_add"), async(req, res) => {
      let body = req.body;
     try {
 
@@ -74,7 +75,7 @@ router.post("/add", async(req, res) => {
 
 
 /* GET Rezervasyon Guncellenme. */
-router.post("/update", async (req, res) => {
+router.post("/update", auth.checkRoles("reservations_update"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
@@ -106,7 +107,7 @@ router.post("/update", async (req, res) => {
 });
 
 /* GET Rezervasyon Silme. */
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth.checkRoles("reservations_delete"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
