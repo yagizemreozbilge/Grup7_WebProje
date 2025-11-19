@@ -56,38 +56,50 @@ router.get('/:id', async(req, res) => {
   
 });
 
-/* Alan Ekleme. */
+//* Alan Ekleme. */
 router.post("/add", async(req, res) => {
      let body = req.body;
     try {
-        if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name fields must be fiiled");
-        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id fields must be fiiled");
+        if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name field must be filled");
+        if(!body.tenant_id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "tenant_id field must be filled");
+
         
-        let newField = new Fields({ 
-            tenant_id:body.tenant_id,
-            name:body.name,
-            
-            price_per_hour:body.price_per_hour,
-            features:body.features,
-            latitude:body.latitude,
-            longitude:body.longitude,
-            address:body.address,
-            is_active:true,
+        let exists = await Fields.findOne({
+            tenant_id: body.tenant_id,
+            name: body.name.trim()
+        });
+
+        if (exists) {
+            throw new CustomError(
+                Enum.HTTP_CODES.CONFLICT,
+                "Already Exists!",
+                "This field already exists for this tenant."
+            );
+        }
+
+        let newField = new Fields({
+            tenant_id: body.tenant_id,
+            name: body.name,
+            price_per_hour: body.price_per_hour,
+            features: body.features,
+            latitude: body.latitude,
+            longitude: body.longitude,
+            address: body.address,
+            is_active: true,
             created_by: req.user?.id
         });
 
-        
         await newField.save();
 
-        res.json(Response.successResponse({success: true, _id: newField._id})); 
+        res.status(HTTP_CODES.CREATED).json(
+            Response.successResponse({ success: true, _id: newField._id })
+        ); 
     } catch(err) {
-          let errorResponse = Response.errorResponse(err);
-         
-          res.status(errorResponse.code).json(errorResponse);
-          
+        let errorResponse = Response.errorResponse(err);
+        res.status(errorResponse.code).json(errorResponse);
     }
-     
 });
+
 
 /* Alan Guncelleme. */
 router.post("/update", async (req, res) => {

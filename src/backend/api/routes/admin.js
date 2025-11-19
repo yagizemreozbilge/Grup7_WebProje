@@ -25,47 +25,36 @@ router.get('/', async(req, res) => {
 router.post('/add', async(req, res) => {
     let body = req.body;
     try {
+
         if (!body.first_name)
-            throw new CustomError(
-                Enum.HTTP_CODES.BAD_REQUEST,
-                "Validation Error!",
-                "first_name field must be filled"
-            );
-
+            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "first_name field must be filled");
         if (!body.last_name)
-            throw new CustomError(
-                Enum.HTTP_CODES.BAD_REQUEST,
-                "Validation Error!",
-                "last_name field must be filled"
-            );
-
+            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "last_name field must be filled");
         if (!body.email)
-            throw new CustomError(
-                Enum.HTTP_CODES.BAD_REQUEST,
-                "Validation Error!",
-                "email field must be filled"
-            );
-
+            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "email field must be filled");
         if (!body.phone_number)
-            throw new CustomError(
-                Enum.HTTP_CODES.BAD_REQUEST,
-                "Validation Error!",
-                "phone_number field must be filled"
-            );
-
+            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "phone_number field must be filled");
         if (!body.password)
+            throw new CustomError(HTTP_CODES.BAD_REQUEST, "Validation Error!", "password field must be filled");
+
+        let exists = await Admin.findOne({
+            email: body.email.trim()
+        });
+
+        if (exists) {
             throw new CustomError(
-                Enum.HTTP_CODES.BAD_REQUEST,
-                "Validation Error!",
-                "password field must be filled"
+                Enum.HTTP_CODES.CONFLICT,
+                "Already Exists!",
+                "An admin with this email already exists."
             );
+        }
 
         let admin = new Admin({
             first_name: body.first_name,
             last_name: body.last_name,
             email: body.email,
             phone_number: body.phone_number,
-            password: body.password, 
+            password: body.password,
             role: body.role || "admin",
             is_active: body.is_active !== undefined ? body.is_active : true,
             created_by: body.created_by || null,
@@ -81,12 +70,16 @@ router.post('/add', async(req, res) => {
             log: { admin_id: admin._id },
         });
 
-        res.json(Response.successResponse({ success: true }));
+        res.status(HTTP_CODES.CREATED).json(
+            Response.successResponse({ success: true })
+        );
+
     } catch (err) {
         let errorResponse = Response.errorResponse(err);
         return res.status(errorResponse.code).json(errorResponse);
     }
 });
+
 
 /* Admin Güncelleme. */
 router.post('/update', async(req, res) => {
