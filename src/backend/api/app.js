@@ -9,12 +9,11 @@ var logger = require('morgan');
 var cors = require('cors');
 var customersRouter = require('./routes/customers');
 var adminRouter = require('./routes/admin');
-
-
-
-
 var app = express();
-console.log("ENV", process.env);
+
+if (process.env.NODE_ENV !== "production") {
+    console.log("ENV", process.env);
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,10 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use((req, res, next) => {
-    console.log("Merhaba Dunya!");
-    next();
-});
+
 
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));

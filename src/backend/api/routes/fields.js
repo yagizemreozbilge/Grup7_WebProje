@@ -7,9 +7,10 @@ const Enum = require("../config/Enum");
 const AuditLogs = require("../db/models/AuditLogs"); 
 const { HTTP_CODES } = require('../config/Enum');
 
-
+const auth = require('../lib/logger/auth')();
+router.use(auth.initialize(), auth.authenticate());
 /* GET Alan Listeleme. */
-router.get('/', async(req, res) => {
+router.get('/', auth.checkRoles("fields_view"),async(req, res) => {
 
     try {
         let fields = await Fields.find({});
@@ -24,7 +25,7 @@ router.get('/', async(req, res) => {
 });
 
 /* GET Tek Alan Detayini Getirme. */
-router.get('/:id', async(req, res) => {
+router.get('/:id',  auth.checkRoles("fields_view"),async(req, res) => {
     const fieldId = req.params.id; 
     
     
@@ -57,7 +58,7 @@ router.get('/:id', async(req, res) => {
 });
 
 //* Alan Ekleme. */
-router.post("/add", async(req, res) => {
+router.post("/add",  auth.checkRoles("fields_add"),async(req, res) => {
      let body = req.body;
     try {
         if(!body.name) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "name field must be filled");
@@ -102,7 +103,7 @@ router.post("/add", async(req, res) => {
 
 
 /* Alan Guncelleme. */
-router.post("/update", async (req, res) => {
+router.post("/update",  auth.checkRoles("fields_update"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
@@ -131,7 +132,7 @@ router.post("/update", async (req, res) => {
 });
 
 /* GET Alan Silme. */
-router.post("/delete", async (req, res) => {
+router.post("/delete",  auth.checkRoles("fields_delete"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");

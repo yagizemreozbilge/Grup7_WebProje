@@ -7,8 +7,10 @@ const Enum = require("../config/Enum");
 const AuditLogs = require("../db/models/AuditLogs");
 const { HTTP_CODES } = require('../config/Enum');
 
+const auth = require('../lib/logger/auth')();
+router.use(auth.initialize(), auth.authenticate());
 
-router.get('/', async(req, res) => {
+router.get('/', auth.checkRoles("tenants_view"),async(req, res) => {
     try {
         let tenants = await Tenants.find({});
         res.json(Response.successResponse(tenants));
@@ -20,7 +22,7 @@ router.get('/', async(req, res) => {
 
 
 
-router.post("/add", async(req, res) => {
+router.post("/add", auth.checkRoles("tenants_add"),async(req, res) => {
     let body = req.body;
     try {
 
@@ -69,7 +71,7 @@ router.post("/add", async(req, res) => {
 });
 
 
-router.post("/update", async (req, res) => {
+router.post("/update", auth.checkRoles("tenants_update"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST, "Validation Error!", "_id field must be filled");
@@ -93,7 +95,7 @@ router.post("/update", async (req, res) => {
 
 
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth.checkRoles("tenants_delete"),async (req, res) => {
   let body = req.body;
   try {
     if (!body._id) throw new CustomError(Enum.HTTP_CODES.BAD_REQUEST,"Validation Error!", "_id field must be filled");
