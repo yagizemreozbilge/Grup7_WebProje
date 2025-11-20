@@ -19,16 +19,16 @@ function NavbarMenu() {
                     <LinkContainer to="/">
                         <Navbar.Brand 
                             className="d-flex align-items-center fw-bold fs-4" 
-                            style={{ letterSpacing: '1px', textTransform: 'uppercase' }} // Metni büyük harf yap
+                            style={{ letterSpacing: '1px', textTransform: 'uppercase' }} 
                         >
                             <span 
                                 style={{
-                                    border: '2px solid white', // Kale direkleri için kenarlık
-                                    padding: '5px 10px',      // Metinle kenarlık arası boşluk
-                                    borderRadius: '3px',      // Köşeleri hafif yuvarla
-                                    display: 'inline-flex',   // İçindeki elemanları hizalamak için
+                                    border: '2px solid white', 
+                                    padding: '5px 10px',      
+                                    borderRadius: '3px',      
+                                    display: 'inline-flex',   
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(255,255,255,0.1)' // Hafif şeffaf arka plan
+                                    backgroundColor: 'rgba(255,255,255,0.1)' 
                                 }}
                             >
                                 <span className="text-white">HalıSaha</span>

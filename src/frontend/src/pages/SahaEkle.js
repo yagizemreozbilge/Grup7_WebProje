@@ -1,4 +1,4 @@
-// src/pages/SahaEkle.js
+
 
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
@@ -11,8 +11,8 @@ function SahaEkle() {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [address, setAddress] = useState('');
-  const [features, setFeatures] = useState(''); // Virgülle ayrılmış özellikler
-  const [photoUrl, setPhotoUrl] = useState(''); // Tek bir fotoğraf linki şimdilik
+  const [features, setFeatures] = useState(''); 
+  const [photoUrl, setPhotoUrl] = useState(''); 
   
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -24,35 +24,35 @@ function SahaEkle() {
     setLoading(true);
     setError(null);
 
-    // 1. Giriş yapmış kullanıcıyı al
+    
     const userInfoString = localStorage.getItem('userInfo');
     if (!userInfoString) {
         window.location.href = '/giris-yap';
         return;
     }
     const userInfo = JSON.parse(userInfoString);
-    const activeUser = userInfo.user || userInfo; // Kullanıcı objesi
+    const activeUser = userInfo.user || userInfo; 
 
-    // 2. Backend'e gönderilecek paketi hazırla
+    
     const payload = {
-        tenant_id: activeUser._id, // SAHA SAHİBİNİN ID'Sİ (Çok Önemli!)
+        tenant_id: activeUser._id, 
         name: name,
         price_per_hour: price,
         address: address,
-        // Özellikleri virgülle ayırıp dizi yapıyoruz: "Duş, Otopark" -> ["Duş", "Otopark"]
+        
         features: features.split(',').map(f => f.trim()), 
-        photos: [photoUrl || 'https://via.placeholder.com/800x400'], // Boşsa varsayılan resim
-        latitude: 0, // Şimdilik 0 (Harita sonra)
-        longitude: 0, // Şimdilik 0
+        photos: [photoUrl || 'https://via.placeholder.com/800x400'], 
+        latitude: 0, 
+        longitude: 0, 
         is_active: true
     };
 
     try {
-        // 3. İsteği Yolla (POST /fields/add)
+        
         await axios.post(`${API_BASE_URL}/fields/add`, payload);
         
         alert('✅ Saha Başarıyla Eklendi!');
-        navigate('/sahalar'); // Listeye yönlendir
+        navigate('/sahalar'); 
         
     } catch (err) {
         setLoading(false);

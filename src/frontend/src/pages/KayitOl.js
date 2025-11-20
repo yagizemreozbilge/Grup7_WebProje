@@ -1,24 +1,24 @@
-// src/pages/KayitOl.js
+
 
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Alert, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// 1. ROLLERİN KİMLİK KARTLARI (ID'LER)
+
 const ROLE_IDS = {
-  player: '691afa1e97ba5acd7a24deb9', // Müşteri/Oyuncu ID
-  admin: '691afbc67f8ee4b7ed654dce',  // Yönetici ID
-  tenant: '691cb77d0669223adc742b83' // Saha Sahibi ID
+  player: '691afa1e97ba5acd7a24deb9', 
+  admin: '691afbc67f8ee4b7ed654dce',  
+  tenant: '691cb77d0669223adc742b83' 
 };
 
 const API_BASE_URL = 'http://localhost:5000';
-// GÖRSELİ DEĞİŞTİRMEDİM, sadece tema rengini (kırmızıdan laciverte) değiştireceğiz.
+
 const registerImageUrl = 'https://images.unsplash.com/photo-1549477545-fb405362145b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
 
 
 function KayitOl() {
-  // State Tanımlamaları (İş Mantığı Korundu)
+  
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,7 +36,7 @@ function KayitOl() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    // Şifre Kontrolü
+    
     if (password !== confirmPassword) {
       setMessage('Şifreler uyuşmuyor!');
       return;
@@ -53,7 +53,7 @@ function KayitOl() {
         },
       };
 
-      // Seçilen rolün ID'sini alıyoruz
+      
       const roleIdToSend = ROLE_IDS[selectedRole];
 
       if (!roleIdToSend || roleIdToSend.includes('691cb77d0669223adc742b83')) {
@@ -97,7 +97,7 @@ function KayitOl() {
           <div 
             className="w-100 h-100 d-flex align-items-center justify-content-center p-5"
             style={{ 
-              // primary rengine yakın bir lacivert tonu kullanıldı (Bootstrap primary = #0d6efd)
+              
               backgroundImage: `linear-gradient(rgba(13, 110, 253, 0.8), rgba(13, 110, 253, 0.9)), url(${registerImageUrl})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',

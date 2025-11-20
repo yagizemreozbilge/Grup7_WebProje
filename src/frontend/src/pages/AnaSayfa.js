@@ -1,10 +1,10 @@
-// src/pages/AnaSayfa.js
+
 
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-// Arka plan görseli
+
 const heroImageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Astroturf_pitch.jpg/1280px-Astroturf_pitch.jpg';
 
 function AnaSayfa() {
@@ -14,17 +14,16 @@ function AnaSayfa() {
 
   const navigate = useNavigate();
 
-  // 1. İL VE İLÇE VERİLERİNİ TANIMLIYORUZ
-  // Buraya istediğin kadar il ve ilçe ekleyebilirsin.
+  
   const sehirVerileri = {
     "Rize": ["Merkez", "Çayeli", "Ardeşen"],
     "Trabzon": ["Merkez", "Of", "Akçaabat", "Yomra"]
   };
 
-  // İl seçildiğinde çalışacak fonksiyon
+  
   const handleIlChange = (e) => {
     setIl(e.target.value);
-    setIlce(''); // İl değişirse, seçili ilçeyi sıfırla
+    setIlce(''); 
   };
 
   const submitHandler = (e) => {
@@ -99,7 +98,7 @@ function AnaSayfa() {
                         className="border-0 bg-light"
                         value={ilce}
                         onChange={(e) => setIlce(e.target.value)}
-                        disabled={!il} // İl seçilmeden ilçe seçilemez
+                        disabled={!il} 
                       >
                         <option value="">
                           {il ? "Tümü" : "Önce Şehir Seçin"}

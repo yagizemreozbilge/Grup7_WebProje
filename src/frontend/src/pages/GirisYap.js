@@ -1,8 +1,8 @@
-// src/pages/GirisYap.js
+
 
 import React, { useState } from 'react';
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap'; // Card kaldırıldı
-import { Link } from 'react-router-dom'; // useNavigate kaldırıldı
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap'; 
+import { Link } from 'react-router-dom'; 
 import axios from 'axios'; 
 
 const API_BASE_URL = 'http://localhost:5000'; 
@@ -10,13 +10,13 @@ const loginImageUrl = 'https://images.unsplash.com/photo-1558237956-6219808e040c
 
 
 function GirisYap() {
-  // İş mantığı (logic) aynı kaldı
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // useNavigate kaldırıldı çünkü window.location.href kullanılıyor
+  
 
   const submitHandler = async (e) => {
     e.preventDefault(); 
@@ -36,22 +36,22 @@ function GirisYap() {
         config
       );
 
-      // BAŞARILI OLURSA
+      
       setLoading(false);
 
-      // Gelen veriyi (token ve user) tarayıcı hafızasına (localStorage) kaydediyoruz.
+      
       const finalData = data.data && data.data.token ? data.data : data;
 
       if (finalData.token) {
         localStorage.setItem('userInfo', JSON.stringify(finalData));
-        // Başarılı girişten sonra Ana Sayfa'ya yönlendir. (Sayfa yenilenir)
+        
         window.location.href = '/'; 
       } else {
         setError('Giriş başarılı, ancak sunucudan geçerli kullanıcı verisi alınamadı.');
       }
       
     } catch (err) {
-      // BAŞARISIZ OLURSA
+      
       setLoading(false);
       const message = err.response && err.response.data.message
           ? err.response.data.message

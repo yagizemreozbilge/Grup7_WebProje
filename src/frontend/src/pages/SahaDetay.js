@@ -41,7 +41,7 @@ function SahaDetay() {
     fetchSahaDetay();
   }, [sahaId]);
 
-  // --- REZERVASYON FONKSİYONU (Mantık aynı) ---
+  
   const rezervasyonYapHandler = async (e) => {
     e.preventDefault();
     
@@ -88,7 +88,7 @@ function SahaDetay() {
     }
   };
 
-  // --- YÜKLENİYOR DURUMU ---
+  
   if (loading) {
       return (
           <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
@@ -97,7 +97,7 @@ function SahaDetay() {
       );
   }
 
-  // --- HATA DURUMU ---
+  
   if (error) {
       return (
           <Container className="my-5">

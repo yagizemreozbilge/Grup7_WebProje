@@ -1,4 +1,4 @@
-// src/pages/KullaniciPanel.js
+
 
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, ListGroup, Alert, Table, Badge, Spinner } from 'react-bootstrap';
@@ -7,9 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = 'http://localhost:5000'; 
 
-// !!! DİKKAT !!!
-// Buraya senin MongoDB'deki 'tenant' (Saha Sahibi) Rol ID'ni yazmalısın.
-// (KayitOl.js dosyasında kullandığın ID ile AYNI olmalı)
+
 const TENANT_ROLE_ID = 'BURAYA-TENANT-ID-YAZ'; 
 
 function KullaniciPanel() {
@@ -49,8 +47,7 @@ function KullaniciPanel() {
 
   if (!user) return <Container className="mt-5">Yükleniyor...</Container>;
 
-  // Kullanıcının Saha Sahibi olup olmadığını kontrol et
-  // (Roller backend'den bazen dizi, bazen string gelebilir, kontrol ediyoruz)
+  
   const isTenant = user.roles && user.roles.includes(TENANT_ROLE_ID);
 
   return (

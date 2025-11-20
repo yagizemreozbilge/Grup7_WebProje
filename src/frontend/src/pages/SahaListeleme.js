@@ -1,4 +1,4 @@
-// src/pages/SahaListeleme.js
+
 
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert, Spinner, Button } from 'react-bootstrap';
@@ -12,7 +12,7 @@ function SahaListeleme() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // URL'deki bilgileri okumak için (örn: ?city=Trabzon)
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,22 +22,22 @@ function SahaListeleme() {
         setLoading(true);
         setError(null);
 
-        // 1. URL'den aranan kriterleri çekiyoruz
+        
         const searchParams = new URLSearchParams(location.search);
         const arananSehir = searchParams.get('city');
         const arananIlce = searchParams.get('district');
 
-        // 2. Veritabanındaki TÜM sahaları çekiyoruz
+        
         const { data } = await axios.get(`${API_BASE_URL}/fields`);
         
-        // Backend bazen {data: [...]} bazen direkt [...] dönebilir, onu ayarlıyoruz
+        
         let gelenVeri = data.data ? data.data : data;
 
-        // --- 3. FİLTRELEME MANTIĞI (Kalbin Burası) ---
+        
         
         if (arananSehir) {
           gelenVeri = gelenVeri.filter(saha => 
-            // Sahanın şehir bilgisini kontrol et. Büyük/küçük harf duyarlılığını kaldır (toLowerCase)
+            
             (saha.city && saha.city.toLowerCase() === arananSehir.toLowerCase()) ||
             (saha.address && saha.address.toLowerCase().includes(arananSehir.toLowerCase()))
           );
@@ -50,7 +50,7 @@ function SahaListeleme() {
           );
         }
 
-        // Filtrelenmiş veriyi kaydet
+        
         setSahalar(gelenVeri);
         setLoading(false);
 
@@ -61,9 +61,9 @@ function SahaListeleme() {
     };
 
     fetchSahalar();
-  }, [location.search]); // URL her değiştiğinde bu kod tekrar çalışır
+  }, [location.search]); 
 
-  // Yeni arama yapmak için temizleme fonksiyonu
+  
   const filtreleriTemizle = () => {
     navigate('/sahalar');
   };
