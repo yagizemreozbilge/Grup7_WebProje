@@ -1,11 +1,11 @@
 // src/pages/SahaDetay.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Image, Badge, Alert, Spinner, Form, Button } from 'react-bootstrap';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000'; 
+import apiClient from '../utils/apiClient';
+import { getStoredAuth } from '../utils/auth';
+import CustomModal from '../components/CustomModal'; 
 
 function SahaDetay() {
   const { id: sahaId } = useParams();
@@ -20,12 +20,19 @@ function SahaDetay() {
   const [saat, setSaat] = useState('');
   const [rezervasyonDurumu, setRezervasyonDurumu] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [showSaatList, setShowSaatList] = useState(false);
+  const [loginModal, setLoginModal] = useState(false);
 
   useEffect(() => {
     const fetchSahaDetay = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${API_BASE_URL}/fields/${sahaId}`);
+        const auth = getStoredAuth();
+        if (!auth?.token) {
+          throw new Error('Saha detayını görebilmek için giriş yapmalısınız.');
+        }
+
+        const { data } = await apiClient.get(`/fields/${sahaId}`);
         setLoading(false);
         
         if (data.data) {
@@ -45,14 +52,12 @@ function SahaDetay() {
   const rezervasyonYapHandler = async (e) => {
     e.preventDefault();
     
-    const userInfoString = localStorage.getItem('userInfo');
-    if (!userInfoString) {
-        alert("Rezervasyon yapmak için lütfen önce giriş yapın!");
-        navigate('/giris-yap');
+    const auth = getStoredAuth();
+    if (!auth?.user) {
+        setLoginModal(true);
         return;
     }
-    const userInfo = JSON.parse(userInfoString);
-    const customerId = userInfo.user ? userInfo.user._id : userInfo._id;
+    const customerId = auth.user._id;
 
     const baslangicSaati = saat.split('-')[0]; 
     const startDateTime = new Date(`${tarih}T${baslangicSaati}:00`);
@@ -73,7 +78,7 @@ function SahaDetay() {
             status: 'pending'
         };
 
-        await axios.post(`${API_BASE_URL}/reservations/add`, payload);
+        await apiClient.post('/reservations/add', payload);
         setRezervasyonDurumu('success');
         
         setTimeout(() => {
@@ -247,6 +252,22 @@ function SahaDetay() {
           </div>
         </Col>
       </Row>
+
+      {/* Giriş Yapma Modal */}
+      <CustomModal
+        show={loginModal}
+        onHide={() => setLoginModal(false)}
+        onConfirm={() => {
+          setLoginModal(false);
+          navigate('/giris-yap');
+        }}
+        title="Giriş Gerekli"
+        message="Rezervasyon yapmak için lütfen önce giriş yapın!"
+        type="warning"
+        confirmText="Giriş Yap"
+        cancelText="İptal"
+        showCancel={true}
+      />
     </Container>
   );
 }
