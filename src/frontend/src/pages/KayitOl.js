@@ -3,16 +3,14 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Alert, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 
 // 1. ROLLERİN KİMLİK KARTLARI (ID'LER)
 const ROLE_IDS = {
   player: '691afa1e97ba5acd7a24deb9', // Müşteri/Oyuncu ID
-  admin: '691afbc67f8ee4b7ed654dce',  // Yönetici ID
+  admin: '691afbc67f8ee4b7ed654dce',  // Yönetici ID
   tenant: '691cb77d0669223adc742b83' // Saha Sahibi ID
 };
-
-const API_BASE_URL = 'http://localhost:5000';
 // GÖRSELİ DEĞİŞTİRMEDİM, sadece tema rengini (kırmızıdan laciverte) değiştireceğiz.
 const registerImageUrl = 'https://images.unsplash.com/photo-1549477545-fb405362145b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
 
@@ -49,29 +47,17 @@ function KayitOl() {
     setLoading(true);
 
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-
       // Seçilen rolün ID'sini alıyoruz
       const roleIdToSend = ROLE_IDS[selectedRole];
 
-     
-
-      const { data } = await axios.post(
-        `${API_BASE_URL}/users/register`,
-        { 
-          email: email, 
-          password: password,
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phoneNumber,
-          roles: [ roleIdToSend ]
-        },
-        config
-      );
+      const { data } = await apiClient.post('/users/register', {
+        email: email, 
+        password: password,
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber,
+        roles: [ roleIdToSend ]
+      });
 
       setLoading(false);
       console.log('Kayıt Başarılı:', data); 

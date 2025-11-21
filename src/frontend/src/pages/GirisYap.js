@@ -1,11 +1,9 @@
 // src/pages/GirisYap.js
 
 import React, { useState } from 'react';
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap'; // Card kaldırıldı
-import { Link } from 'react-router-dom'; // useNavigate kaldırıldı
-import axios from 'axios'; 
-
-const API_BASE_URL = 'http://localhost:5000'; 
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import apiClient from '../utils/apiClient'; 
 const loginImageUrl = 'https://images.unsplash.com/photo-1558237956-6219808e040c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
 
 
@@ -24,17 +22,7 @@ function GirisYap() {
     setLoading(true);
 
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-
-      const { data } = await axios.post(
-        `${API_BASE_URL}/users/auth`, 
-        { email, password }, 
-        config
-      );
+      const { data } = await apiClient.post('/users/auth', { email, password });
 
       // BAŞARILI OLURSA
       setLoading(false);

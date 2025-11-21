@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, ListGroup, Alert, Table, Badge, Spinner } from 'react-bootstrap';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
-const API_BASE_URL = 'http://localhost:5000'; 
+import apiClient from '../utils/apiClient';
+import { getStoredAuth } from '../utils/auth';
+import { useNavigate } from 'react-router-dom'; 
 
 
 const TENANT_ROLE_ID = '691cb77d0669223adc742b83'; 
@@ -17,13 +16,11 @@ function KullaniciPanel() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userInfoStorage = localStorage.getItem('userInfo');
+    const auth = getStoredAuth();
     
-    if (userInfoStorage) {
-      const userInfo = JSON.parse(userInfoStorage);
-      const activeUser = userInfo.user || userInfo;
-      setUser(activeUser);
-      fetchRezervasyonlar(activeUser._id);
+    if (auth?.user) {
+      setUser(auth.user);
+      fetchRezervasyonlar(auth.user._id);
     } else {
       window.location.href = '/giris-yap';
     }
@@ -32,7 +29,7 @@ function KullaniciPanel() {
   const fetchRezervasyonlar = async (userId) => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${API_BASE_URL}/reservations`);
+      const { data } = await apiClient.get('/reservations');
       
       let allReservations = data.data ? data.data : data;
       const myReservations = allReservations.filter(res => res.customer_id === userId);

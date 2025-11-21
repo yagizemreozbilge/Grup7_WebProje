@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
+import { getStoredAuth } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
-
-const API_BASE_URL = 'http://localhost:5000';
 
 function SahaEkle() {
   const [name, setName] = useState('');
@@ -25,13 +24,12 @@ function SahaEkle() {
     setError(null);
 
     // 1. Giriş yapmış kullanıcıyı al
-    const userInfoString = localStorage.getItem('userInfo');
-    if (!userInfoString) {
+    const auth = getStoredAuth();
+    if (!auth?.user) {
         window.location.href = '/giris-yap';
         return;
     }
-    const userInfo = JSON.parse(userInfoString);
-    const activeUser = userInfo.user || userInfo; // Kullanıcı objesi
+    const activeUser = auth.user;
 
     // 2. Backend'e gönderilecek paketi hazırla
     const payload = {
@@ -49,7 +47,7 @@ function SahaEkle() {
 
     try {
         // 3. İsteği Yolla (POST /fields/add)
-        await axios.post(`${API_BASE_URL}/fields/add`, payload);
+        await apiClient.post('/fields/add', payload);
         
         navigate('/sahalar'); // Listeye yönlendir
         

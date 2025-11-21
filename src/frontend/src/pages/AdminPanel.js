@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Badge, Button, Spinner, Alert } from 'react-bootstrap';
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000';
+import apiClient from '../utils/apiClient';
+import { getStoredAuth } from '../utils/auth';
 
 function AdminPanel() {
   const [users, setUsers] = useState([]);
@@ -19,26 +18,14 @@ function AdminPanel() {
     try {
       setLoading(true);
 
-      // 1. HAFIZADAN TOKEN'I AL
-      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      const token = userInfo.token; // <-- Giriş yaparken gelen token
-
-      // 2. TOKEN YOKSA HATA VER (VEYA LOGİNE AT)
-      if (!token) {
+      const auth = getStoredAuth();
+      if (!auth?.token) {
           setError('Yetkisiz erişim! Lütfen giriş yapın.');
           setLoading(false);
           return;
       }
 
-      // 3. İSTEĞE TOKEN'I EKLE (Header'a koyuyoruz)
-      const config = {
-          headers: {
-              Authorization: token // Backend bazen 'Bearer ' + token ister, önce böyle dene
-          }
-      };
-
-      // 4. İSTEĞİ KONFİGÜRASYONLA BERABER YOLLA
-      const { data } = await axios.get(`${API_BASE_URL}/users`, config);
+      const { data } = await apiClient.get('/users');
       
       if (data.data) {
         setUsers(data.data);
