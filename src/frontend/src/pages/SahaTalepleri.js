@@ -5,14 +5,12 @@ import { Container, Card, Table, Button, Badge, Alert, Spinner } from 'react-boo
 import apiClient from '../utils/apiClient';
 import { getStoredAuth } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
-import CustomModal from '../components/CustomModal';
 
 function SahaTalepleri() {
   const [talepler, setTalepler] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState({});
-  const [errorModal, setErrorModal] = useState({ show: false, message: '' });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,7 +65,7 @@ function SahaTalepleri() {
       await fetchTalepler();
     } catch (err) {
       const message = err.response?.data?.error?.description || err.message || 'İşlem başarısız oldu.';
-      setErrorModal({ show: true, message });
+      alert(message);
     } finally {
       setProcessing({ ...processing, [fieldId]: false });
     }
@@ -213,16 +211,6 @@ function SahaTalepleri() {
           )}
         </Card.Body>
       </Card>
-
-      {/* Hata Modal */}
-      <CustomModal
-        show={errorModal.show}
-        onHide={() => setErrorModal({ show: false, message: '' })}
-        title="Hata"
-        message={errorModal.message}
-        type="danger"
-        confirmText="Tamam"
-      />
     </Container>
   );
 }

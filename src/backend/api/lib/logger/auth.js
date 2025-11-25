@@ -4,6 +4,7 @@ const { ExtractJwt, Strategy } = require("passport-jwt");
 const Users = require('../../db/models/Users');
 const UserRoles = require('../../db/models/UserRoles');
 const RolePrivileges = require('../../db/models/RolePrivileges');
+const Roles = require('../../db/models/Roles');
 
 const config = require('../../config');
 
@@ -41,9 +42,15 @@ module.exports = function () {
                     .map(rp => privs.privileges.find(x => x.key === rp.permission))
                     .filter(x => x); 
 
+                let roleDetails = await Roles.find({ _id: { $in: userRoles.map(ur => ur.role_id) } });
                 return done(null, {
                     id: user._id,
                     roles: privileges,
+                    role_ids: userRoles.map(ur => ur.role_id.toString()),
+                    role_details: roleDetails.map(r => ({
+                        id: r._id.toString(),
+                        name: r.role_name
+                    })),
                     email: user.email,
                     first_name: user.first_name,
                     last_name: user.last_name,

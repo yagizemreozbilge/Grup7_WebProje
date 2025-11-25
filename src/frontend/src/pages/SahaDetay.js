@@ -5,7 +5,18 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Image, Badge, Alert, Spinner, Form, Button } from 'react-bootstrap';
 import apiClient from '../utils/apiClient';
 import { getStoredAuth } from '../utils/auth';
-import CustomModal from '../components/CustomModal'; 
+
+const FALLBACK_PHOTO =
+  'https://images.unsplash.com/photo-1513171920216-2640d5b5f5c5?auto=format&fit=crop&w=1200&q=80';
+
+const resolvePhotoUrl = (photo) => {
+  if (typeof photo !== 'string') return FALLBACK_PHOTO;
+  const trimmed = photo.trim();
+  if (!trimmed) return FALLBACK_PHOTO;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith('//')) return `https:${trimmed}`;
+  return FALLBACK_PHOTO;
+};
 
 function SahaDetay() {
   const { id: sahaId } = useParams();
@@ -21,7 +32,13 @@ function SahaDetay() {
   const [rezervasyonDurumu, setRezervasyonDurumu] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [showSaatList, setShowSaatList] = useState(false);
-  const [loginModal, setLoginModal] = useState(false);
+
+  const hasPhoto = Array.isArray(saha.photos) && saha.photos.length > 0 && saha.photos[0];
+  const primaryPhoto = useMemo(() => {
+    if (!hasPhoto) return null;
+    const photos = Array.isArray(saha.photos) ? saha.photos : [];
+    return resolvePhotoUrl(photos[0]);
+  }, [saha.photos, hasPhoto]);
 
   useEffect(() => {
     const fetchSahaDetay = async () => {
@@ -42,7 +59,11 @@ function SahaDetay() {
         }
       } catch (err) {
         setLoading(false);
-        setError('Saha detayı yüklenirken hata: ' + err.message);
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          setError('Saha detayını görüntüleyebilmek için lütfen giriş yapın.');
+        } else {
+          setError('Saha detayı yüklenirken hata: ' + err.message);
+        }
       }
     };
     fetchSahaDetay();
@@ -54,7 +75,8 @@ function SahaDetay() {
     
     const auth = getStoredAuth();
     if (!auth?.user) {
-        setLoginModal(true);
+        alert("Rezervasyon yapmak için lütfen önce giriş yapın!");
+        navigate('/giris-yap');
         return;
     }
     const customerId = auth.user._id;
@@ -87,7 +109,12 @@ function SahaDetay() {
 
     } catch (err) {
         console.error("Rezervasyon Hatası:", err);
-        setRezervasyonDurumu('error');
+        const errorMsg = err.response?.data?.error?.description || err.response?.data?.error?.message || err.message;
+        if (errorMsg && errorMsg.includes('zaten rezerve')) {
+          setRezervasyonDurumu('conflict');
+        } else {
+          setRezervasyonDurumu('error');
+        }
     } finally {
         setFormLoading(false);
     }
@@ -125,18 +152,26 @@ function SahaDetay() {
         {/* --- SOL TARAF: Görsel ve Detaylar --- */}
         <Col lg={8}>
           {/* Büyük Görsel */}
-          <div className="position-relative mb-4 shadow rounded-4 overflow-hidden">
-            <Image 
-                src={saha.photos && saha.photos.length > 0 ? saha.photos[0] : 'https://via.placeholder.com/800x400?text=Gorsel+Yok'} 
-                alt={saha.name} 
-                fluid 
-                style={{ width: '100%', height: '400px', objectFit: 'cover' }} 
-            />
-            <div className="position-absolute bottom-0 start-0 w-100 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
-                <h1 className="text-white fw-bold mb-0">{saha.name}</h1>
-                <p className="text-white-50 mb-0"><i className="bi bi-geo-alt-fill"></i> {saha.city ? `${saha.city}, ${saha.district}` : ''}</p>
+          {hasPhoto && (
+            <div className="position-relative mb-4 shadow rounded-4 overflow-hidden">
+              <Image 
+                  src={primaryPhoto} 
+                  alt={saha.name} 
+                  fluid 
+                  style={{ width: '100%', height: '400px', objectFit: 'cover' }} 
+              />
+              <div className="position-absolute bottom-0 start-0 w-100 p-4" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
+                  <h1 className="text-white fw-bold mb-0">{saha.name}</h1>
+                  <p className="text-white-50 mb-0"><i className="bi bi-geo-alt-fill"></i> {saha.city || ''}</p>
+              </div>
             </div>
-          </div>
+          )}
+          {!hasPhoto && (
+            <div className="mb-4">
+              <h1 className="fw-bold">{saha.name}</h1>
+              <p className="text-muted"><i className="bi bi-geo-alt-fill"></i> {saha.city || saha.address}</p>
+            </div>
+          )}
 
           {/* Açıklama ve Özellikler */}
           <Card className="border-0 shadow-sm mb-4">
@@ -165,7 +200,7 @@ function SahaDetay() {
         {/* --- SAĞ TARAF: Rezervasyon Kartı (Sticky) --- */}
         <Col lg={4}>
           <div className="sticky-top" style={{ top: '100px', zIndex: 1 }}>
-            <Card className="border-0 shadow-lg rounded-4 overflow-hidden">
+            <Card className="border-0 shadow-lg rounded-4" style={{ overflow: 'visible' }}>
                 <div className="bg-success p-3 text-center text-white">
                     <h5 className="mb-0 fw-bold">Rezervasyon Yap</h5>
                 </div>
@@ -179,12 +214,26 @@ function SahaDetay() {
                     {/* Durum Mesajları */}
                     {rezervasyonDurumu === 'success' ? (
                         <Alert variant="success" className="text-center">
-                            🎉 <strong>İşlem Başarılı!</strong><br/>
+                             <strong>İşlem Başarılı!</strong><br/>
                             Rezervasyonunuz alındı. Profilinize yönlendiriliyorsunuz...
                         </Alert>
+                    ) : rezervasyonDurumu === 'conflict' ? (
+                        <div>
+                            <Alert variant="warning" className="text-center">
+                                <strong>⚠️ Saha Dolu!</strong><br/>
+                                Bu saatte saha zaten rezerve edilmiş. Lütfen başka bir saat seçin.
+                            </Alert>
+                            <Button 
+                                variant="outline-primary" 
+                                className="w-100 mt-2"
+                                onClick={() => setRezervasyonDurumu(null)}
+                            >
+                                Farklı Saat Seç
+                            </Button>
+                        </div>
                     ) : rezervasyonDurumu === 'error' ? (
                         <Alert variant="danger" className="text-center">
-                            ❌ <strong>Hata!</strong><br/>
+                            <strong>Hata!</strong><br/>
                             Rezervasyon oluşturulamadı. Lütfen tekrar deneyin.
                         </Alert>
                     ) : (
@@ -204,19 +253,53 @@ function SahaDetay() {
 
                             <Form.Group className="mb-4" controlId="saat">
                                 <Form.Label className="fw-bold small text-muted">SAAT ARALIĞI</Form.Label>
-                                <Form.Select 
-                                    required
-                                    size="lg"
-                                    className="bg-light border-0"
-                                    value={saat}
-                                    onChange={(e) => setSaat(e.target.value)}
-                                >
-                                    <option value="">Seçiniz...</option>
-                                    <option value="18:00-19:00">18:00 - 19:00</option>
-                                    <option value="19:00-20:00">19:00 - 20:00</option>
-                                    <option value="20:00-21:00">20:00 - 21:00</option>
-                                    <option value="21:00-22:00">21:00 - 22:00</option>
-                                </Form.Select>
+                                <div className="position-relative">
+                                    <button
+                                        type="button"
+                                        className="btn btn-light border w-100 text-start py-3"
+                                        onClick={() => setShowSaatList((prev) => !prev)}
+                                    >
+                                        {saat || 'Saat aralığı seçin'}
+                                    </button>
+                                    {showSaatList && (
+                                        <div
+                                            className="position-absolute w-100 bg-white border rounded mt-2 shadow-sm"
+                                            style={{
+                                                maxHeight: '220px',
+                                                overflowY: 'auto',
+                                                zIndex: 20
+                                            }}
+                                        >
+                                            {Array.from({ length: 15 }).map((_, index) => {
+                                                const startHour = 9 + index;
+                                                const endHour = startHour + 1;
+                                                const startLabel = startHour.toString().padStart(2, '0');
+                                                const endLabel = endHour.toString().padStart(2, '0');
+                                                const value = `${startLabel}:00-${endLabel}:00`;
+                                                const isActive = saat === value;
+                                                return (
+                                                    <button
+                                                        type="button"
+                                                        key={startHour}
+                                                        onClick={() => {
+                                                            setSaat(value);
+                                                            setShowSaatList(false);
+                                                        }}
+                                                        className={`btn w-100 text-start rounded-0 ${
+                                                            isActive ? 'btn-success text-white' : 'btn-light text-dark'
+                                                        }`}
+                                                        style={{
+                                                            border: 'none',
+                                                            borderBottom: '1px solid rgba(0,0,0,0.05)'
+                                                        }}
+                                                    >
+                                                        {startLabel}:00 - {endLabel}:00
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
                             </Form.Group>
                             
                             <div className="d-grid">
@@ -252,22 +335,6 @@ function SahaDetay() {
           </div>
         </Col>
       </Row>
-
-      {/* Giriş Yapma Modal */}
-      <CustomModal
-        show={loginModal}
-        onHide={() => setLoginModal(false)}
-        onConfirm={() => {
-          setLoginModal(false);
-          navigate('/giris-yap');
-        }}
-        title="Giriş Gerekli"
-        message="Rezervasyon yapmak için lütfen önce giriş yapın!"
-        type="warning"
-        confirmText="Giriş Yap"
-        cancelText="İptal"
-        showCancel={true}
-      />
     </Container>
   );
 }

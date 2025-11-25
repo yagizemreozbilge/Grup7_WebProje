@@ -1,9 +1,10 @@
 // src/pages/GirisYap.js
 
 import React, { useState } from 'react';
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import apiClient from '../utils/apiClient'; 
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap'; // Card kaldırıldı
+import { Link } from 'react-router-dom'; // useNavigate kaldırıldı
+import apiClient from '../utils/apiClient';
+import { saveAuth } from '../utils/auth'; 
 const loginImageUrl = 'https://images.unsplash.com/photo-1558237956-6219808e040c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80';
 
 
@@ -22,7 +23,17 @@ function GirisYap() {
     setLoading(true);
 
     try {
-      const { data } = await apiClient.post('/users/auth', { email, password });
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const { data } = await apiClient.post(
+        '/users/auth', 
+        { email, password }, 
+        config
+      );
 
       // BAŞARILI OLURSA
       setLoading(false);
@@ -31,7 +42,7 @@ function GirisYap() {
       const finalData = data.data && data.data.token ? data.data : data;
 
       if (finalData.token) {
-        localStorage.setItem('userInfo', JSON.stringify(finalData));
+        saveAuth(finalData);
         // Başarılı girişten sonra Ana Sayfa'ya yönlendir. (Sayfa yenilenir)
         window.location.href = '/'; 
       } else {
@@ -41,9 +52,22 @@ function GirisYap() {
     } catch (err) {
       // BAŞARISIZ OLURSA
       setLoading(false);
-      const message = err.response && err.response.data.message
-          ? err.response.data.message
-          : err.message;
+      let message = 'Giriş başarısız oldu. Lütfen email ve şifrenizi kontrol edin.';
+      
+      if (err.response?.data) {
+        // Backend'den gelen hata mesajını al
+        const errorData = err.response.data;
+        if (errorData.error?.description) {
+          message = errorData.error.description;
+        } else if (errorData.error?.message) {
+          message = errorData.error.message;
+        } else if (errorData.message) {
+          message = errorData.message;
+        }
+      } else if (err.message) {
+        message = err.message;
+      }
+      
       setError(message);
     }
   };
