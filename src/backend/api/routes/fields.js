@@ -30,7 +30,7 @@ const isSuperAdmin = (req) => {
     const userRoles = Array.isArray(req.user?.roles) ? req.user.roles : [];
     const roleDetails = Array.isArray(req.user?.role_details) ? req.user.role_details : [];
     
-    return userRoles.includes('superuser') ||
+    return userRoles.some(r => r.key === 'superuser') ||
            roleDetails.some((role) => {
                const name = (role?.role_name || role?.name || '').toLowerCase();
                return name.includes('admin') || name.includes('super');

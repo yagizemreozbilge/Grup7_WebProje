@@ -90,13 +90,11 @@ function SahaTalepleri() {
           <h2 className="mb-0">Saha Ekleme Talepleri</h2>
         </Card.Header>
         <Card.Body>
-          {error && (
+          {error ? (
             <Alert variant="danger" dismissible onClose={() => setError(null)}>
               {error}
             </Alert>
-          )}
-
-          {talepler.length === 0 ? (
+          ) : talepler.length === 0 ? (
             <Alert variant="info" className="text-center">
               <strong>Henüz bekleyen talep yok.</strong>
             </Alert>
