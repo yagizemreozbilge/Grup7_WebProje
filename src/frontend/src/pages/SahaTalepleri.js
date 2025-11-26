@@ -1,5 +1,3 @@
-// src/pages/SahaTalepleri.js
-
 import React, { useEffect, useState } from 'react';
 import { Container, Card, Table, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import apiClient from '../utils/apiClient';
@@ -20,7 +18,6 @@ function SahaTalepleri() {
       return;
     }
 
-    // Super admin kontrolü
     const user = auth.user;
     const userRoles = Array.isArray(user.roles) ? user.roles : [];
     const roleDetails = Array.isArray(user.role_details) ? user.role_details : [];
@@ -61,7 +58,6 @@ function SahaTalepleri() {
         _id: fieldId,
         approval_status: status
       });
-      // Başarılı oldu, listeyi yenile
       await fetchTalepler();
     } catch (err) {
       const message = err.response?.data?.error?.description || err.message || 'İşlem başarısız oldu.';

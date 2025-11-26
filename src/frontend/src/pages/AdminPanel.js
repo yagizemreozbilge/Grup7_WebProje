@@ -1,5 +1,3 @@
-// src/pages/AdminPanel.js
-
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Badge, Spinner, Alert, Button, Tabs, Tab } from 'react-bootstrap';
 import apiClient from '../utils/apiClient';
@@ -27,7 +25,6 @@ function AdminPanel() {
       return;
     }
 
-    // Super admin kontrolü
     const user = auth.user;
     const userRoles = Array.isArray(user.roles) ? user.roles : [];
     const roleDetails = Array.isArray(user.role_details) ? user.role_details : [];
@@ -251,7 +248,6 @@ function AdminPanel() {
         </Tabs>
       )}
 
-      {/* Alert Modal */}
       <CustomModal
         show={showAlertModal}
         onHide={() => setShowAlertModal(false)}
@@ -261,7 +257,6 @@ function AdminPanel() {
         confirmText="Tamam"
       />
 
-      {/* Prompt Modal */}
       <PromptModal
         show={showPromptModal}
         onHide={() => setShowPromptModal(false)}

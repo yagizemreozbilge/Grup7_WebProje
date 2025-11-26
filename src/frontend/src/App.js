@@ -1,5 +1,3 @@
-// src/App.js
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
@@ -32,20 +30,21 @@ function App() {
             <Route path="/saha-ekle" element={
               <ProtectedRoute
                 requiredPermissions={['fields_add']}
-                allowedRoleKeywords={['saha', 'tenant']}
+                allowedRoleKeywords={['saha', 'tenant', 'admin']}
               >
                 <SahaEkle />
               </ProtectedRoute>
             } />
             
-            {/* DÜZELTME: Tek Admin Rotası */}
             <Route path="/admin" element={
-              <ProtectedRoute requiredPermissions={['users_view']}>
+              <ProtectedRoute 
+                requiredPermissions={['users_view']}
+                allowedRoleKeywords={['admin', 'super', 'süper']}
+              >
                 <AdminPanel />
               </ProtectedRoute>
             } />
 
-            {/* Saha Talepleri - Sadece Super Admin */}
             <Route path="/saha-talepleri" element={
               <ProtectedRoute>
                 <SahaTalepleri />

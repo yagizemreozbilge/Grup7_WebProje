@@ -38,7 +38,7 @@ const isSuperAdmin = (req) => {
 };
 
 const ensureFieldPermission = (permissionKey) => (req, res, next) => {
-    if (hasPrivilege(req, permissionKey) || hasRoleKeyword(req)) {
+    if (hasPrivilege(req, permissionKey) || hasRoleKeyword(req) || isSuperAdmin(req)) {
         return next();
     }
 

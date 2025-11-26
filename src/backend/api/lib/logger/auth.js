@@ -93,6 +93,17 @@ module.exports = function () {
 
                 let privileges = req.user.roles.map(x => x.key);
 
+                // Superuser veya Admin kontrolü (Her şeye yetkisi var)
+                const isSuperUser = privileges.includes('superuser');
+                const isSuperAdminRole = (req.user.role_details || []).some(r => {
+                    const name = (r.name || '').toLowerCase();
+                    return name.includes('admin') || name.includes('super');
+                });
+
+                if (isSuperUser || isSuperAdminRole) {
+                    return next();
+                }
+
                 let i = 0;
                 
                 while (i < expectedRoles.length && !privileges.includes(expectedRoles[i])) {

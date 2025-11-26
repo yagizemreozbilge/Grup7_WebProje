@@ -1,5 +1,3 @@
-// src/components/NavbarMenu.js
-
 import React from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Navbar, Nav, Container, Button } from 'react-bootstrap';
@@ -10,7 +8,7 @@ import {
 } from '../utils/auth';
 
 const TENANT_KEYWORDS = ['saha', 'tenant'];
-const SUPER_ADMIN_KEYWORDS = ['süper', 'super'];
+const SUPER_ADMIN_KEYWORDS = ['süper', 'super', 'admin'];
 
 const hasTenantBadge = (roleDetails = []) =>
     roleDetails.some((role) => {
@@ -36,7 +34,8 @@ function NavbarMenu() {
         isSuperAdminRole(roleDetails);
     const canManageFields =
         hasPermission(user, ['fields_add']) ||
-        isTenant;
+        isTenant ||
+        isSuperAdmin;
 
     const logoutHandler = () => {
         clearStoredAuth();
@@ -79,7 +78,6 @@ function NavbarMenu() {
 
                             {isAuthenticated ? (
                                 <>
-                                    {/* --- BİZİM EKLEDİĞİMİZ SAHA EKLE BUTONU (Geri Geldi!) --- */}
                                     {canManageFields && (
                                         <LinkContainer to="/saha-ekle">
                                             <Nav.Link className="mx-2 fw-bold text-white">

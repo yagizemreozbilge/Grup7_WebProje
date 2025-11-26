@@ -1,5 +1,3 @@
-// src/pages/SahaEkle.js
-
 import React, { useMemo, useState } from 'react';
 import { Container, Form, Button, Alert, Card, ListGroup } from 'react-bootstrap';
 import apiClient from '../utils/apiClient';
@@ -12,8 +10,8 @@ function SahaEkle() {
   const [price, setPrice] = useState('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
-  const [features, setFeatures] = useState(''); // Virgülle ayrılmış özellikler
-  const [photoUrl, setPhotoUrl] = useState(''); // Tek bir fotoğraf linki şimdilik
+  const [features, setFeatures] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   
   const [error, setError] = useState(null);
@@ -22,7 +20,6 @@ function SahaEkle() {
   
   const navigate = useNavigate();
 
-  // Super admin kontrolü
   const isSuperAdmin = (user) => {
     if (!user) return false;
     const userRoles = Array.isArray(user.roles) ? user.roles : [];
@@ -63,7 +60,6 @@ function SahaEkle() {
       return;
     }
 
-    // 1. Giriş yapmış kullanıcıyı al
     const auth = getStoredAuth();
     if (!auth?.user) {
         window.location.href = '/giris-yap';
@@ -71,39 +67,32 @@ function SahaEkle() {
     }
     const activeUser = auth.user;
 
-    // 2. Backend'e gönderilecek paketi hazırla
     const payload = {
-        tenant_id: activeUser._id, // SAHA SAHİBİNİN ID'Sİ (Çok Önemli!)
+        tenant_id: activeUser._id,
         name: name.trim(),
         price_per_hour: Number(price) || 0,
         city: city.trim(),
         address: address?.trim() ? address.trim() : city.trim(),
-        // Özellikleri virgülle ayırıp dizi yapıyoruz: "Duş, Otopark" -> ["Duş", "Otopark"]
         features: features
           .split(',')
           .map(f => f.trim())
           .filter(Boolean),
         photos: photoUrl && photoUrl.trim() ? [photoUrl.trim()] : [],
-        latitude: 0, // Şimdilik 0 (Harita sonra)
-        longitude: 0, // Şimdilik 0
+        latitude: 0,
+        longitude: 0,
         is_active: true
     };
 
     try {
-        // 3. İsteği Yolla (POST /fields/add)
         await apiClient.post('/fields/add', payload);
         
-        // Super admin kontrolü
         if (!isSuperAdmin(activeUser)) {
-            // Tenant ise uyarı mesajı göster
             setSuccess(true);
             setLoading(false);
-            // 3 saniye sonra listeye yönlendir
             setTimeout(() => {
                 navigate('/sahalar');
             }, 3000);
         } else {
-            // Super admin ise direkt yönlendir
             navigate('/sahalar');
         }
         
