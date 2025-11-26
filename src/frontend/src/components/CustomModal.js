@@ -26,11 +26,11 @@ function CustomModal({
 
   const getIcon = () => {
     switch(type) {
-      case 'success': return '✓';
-      case 'warning': return '⚠';
-      case 'danger': return '✕';
-      case 'confirm': return '?';
-      default: return 'ℹ';
+      case 'success': return '';
+      case 'warning': return '';
+      case 'danger': return '';
+      case 'confirm': return '';
+      default: return '';
     }
   };
 

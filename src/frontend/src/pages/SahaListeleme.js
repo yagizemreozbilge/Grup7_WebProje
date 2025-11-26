@@ -206,7 +206,7 @@ function SahaListeleme() {
                     
                     <Card.Text as="div" className="mt-auto text-muted small">
                       {/* DÜZELTME: Backtick ile düzeltildi */}
-                      📍 {saha.city || saha.address}
+                      {saha.city || saha.address}
                     </Card.Text>
 
                     {/* DÜZELTME: Link backtick ile düzeltildi */}

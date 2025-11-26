@@ -110,7 +110,7 @@ function SahaEkle() {
             {error && <Alert variant="danger">{error}</Alert>}
             {success && (
                 <Alert variant="info" className="text-center">
-                    <strong>✅ Saha ekleme isteğiniz super admin'e iletildi!</strong><br/>
+                    <strong>Saha ekleme isteğiniz super admin'e iletildi!</strong><br/>
                     Talebiniz onaylandıktan sonra saha yayınlanacaktır. Sayfa yönlendiriliyor...
                 </Alert>
             )}

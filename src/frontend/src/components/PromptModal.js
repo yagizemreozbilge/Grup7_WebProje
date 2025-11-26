@@ -60,7 +60,7 @@ function PromptModal({
               backgroundColor: 'rgba(220, 53, 69, 0.1)'
             }}
           >
-            ✕
+            
           </span>
           {title || 'Bilgi Girişi'}
         </Modal.Title>

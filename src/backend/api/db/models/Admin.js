@@ -81,5 +81,5 @@ schema.methods.getFullName = function() {
     return `${this.first_name} ${this.last_name}`;
 };
 
-// ✅ Model zaten varsa onu kullan, yoksa yeni oluştur
+// Model zaten varsa onu kullan, yoksa yeni oluştur
 module.exports = mongoose.models.admins || mongoose.model("admins", schema);

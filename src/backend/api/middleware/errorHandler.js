@@ -10,7 +10,7 @@ const { HTTP_CODES } = require("../config/Enum");
 const errorHandler = (err, req, res, next) => {
 
     // Console'a log at (development için)
-    console.error("❌ Error:", err);
+    console.error("Error:", err);
 
     let error = err;
 

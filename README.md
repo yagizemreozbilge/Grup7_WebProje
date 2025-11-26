@@ -2,12 +2,12 @@
 
 Halı saha rezervasyonu yapabileceğiniz full-stack web uygulaması.
 
-## 🌐 Canlı Site
+## Canlı Site
 
 - **Frontend:** https://halisahamax-9d97d.web.app
 - **Backend API:** https://grup7-api-404670274592.europe-west1.run.app
 
-## 📋 Proje Yapısı
+## Proje Yapısı
 
 ```
 Grup7_WebProje/
@@ -19,7 +19,7 @@ Grup7_WebProje/
 └── README.md
 ```
 
-## 🛠️ Teknolojiler
+## Teknolojiler
 
 ### Backend
 - **Node.js** + **Express**
@@ -38,7 +38,7 @@ Grup7_WebProje/
 - **Firebase Hosting** (Frontend)
 - **MongoDB Atlas** (Database)
 
-## 🚀 Lokal Geliştirme
+## Lokal Geliştirme
 
 ### Backend
 
@@ -60,7 +60,7 @@ npm start
 
 Frontend `http://localhost:3000` adresinde çalışacak.
 
-## 📦 Production Build
+## Production Build
 
 ### Backend
 
@@ -78,7 +78,7 @@ npm run build
 
 Build dosyaları `build/` klasörüne oluşturulur.
 
-## 🚢 Deployment
+## Deployment
 
 ### Backend (Cloud Run)
 
@@ -105,7 +105,7 @@ npm run build
 firebase deploy --only hosting
 ```
 
-## 🔧 Ortam Değişkenleri
+## Ortam Değişkenleri
 
 ### Backend (.env)
 
@@ -120,19 +120,19 @@ NODE_ENV=production
 
 Build sırasında `REACT_APP_API_BASE_URL` ortam değişkeni kullanılabilir.
 
-## 📝 Özellikler
+## Özellikler
 
-- ✅ Kullanıcı kayıt/giriş sistemi
-- ✅ Halı saha listeleme ve detay görüntüleme
-- ✅ Rezervasyon yapma
-- ✅ Admin paneli
-- ✅ Saha ekleme/onaylama sistemi
-- ✅ Rol bazlı yetkilendirme
+- Kullanıcı kayıt/giriş sistemi
+- Halı saha listeleme ve detay görüntüleme
+- Rezervasyon yapma
+- Admin paneli
+- Saha ekleme/onaylama sistemi
+- Rol bazlı yetkilendirme
 
-## 👥 Geliştiriciler
+## Geliştiriciler
 
 Grup 7 - Web Projesi
 
-## 📄 Lisans
+## Lisans
 
 Bu proje eğitim amaçlı geliştirilmiştir.

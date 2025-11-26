@@ -185,7 +185,7 @@ function AnaSayfa() {
             <Col md={6} className="mb-4 mb-md-0">
               <h2 className="fw-bold mb-4">Neden HalıSahaMax?</h2>
               <div className="d-flex mb-3">
-                 <div className="me-3"><span className="badge bg-primary rounded-pill p-2">✓</span></div>
+                 <div className="me-3"><span className="badge bg-primary rounded-pill p-2"></span></div>
                  <div><h5 className="fw-bold">Kolay ve Hızlı</h5><p className="text-muted">Hızlı arayüz ile saniyeler içinde saha bul.</p></div>
               </div>
             </Col>

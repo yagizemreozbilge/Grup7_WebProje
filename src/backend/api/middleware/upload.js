@@ -145,12 +145,12 @@ const deleteFile = (filePath) => {
     try {
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
-            console.log("✅ File deleted:", filePath);
+            console.log("File deleted:", filePath);
             return true;
         }
         return false;
     } catch (err) {
-        console.error("❌ Error deleting file:", err);
+        console.error("Error deleting file:", err);
         return false;
     }
 };

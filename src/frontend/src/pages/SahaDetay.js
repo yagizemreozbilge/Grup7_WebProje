@@ -186,7 +186,7 @@ function SahaDetay() {
                     {saha.features && saha.features.length > 0 ? (
                         saha.features.map((f, i) => (
                             <Badge key={i} bg="light" text="dark" className="border p-2 fs-6 fw-normal">
-                                ✅ {f}
+                                {f}
                             </Badge>
                         ))
                     ) : (
@@ -220,7 +220,7 @@ function SahaDetay() {
                     ) : rezervasyonDurumu === 'conflict' ? (
                         <div>
                             <Alert variant="warning" className="text-center">
-                                <strong>⚠️ Saha Dolu!</strong><br/>
+                                <strong>Saha Dolu!</strong><br/>
                                 Bu saatte saha zaten rezerve edilmiş. Lütfen başka bir saat seçin.
                             </Alert>
                             <Button 
